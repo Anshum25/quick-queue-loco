@@ -8,6 +8,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import {
   Popover,
@@ -52,29 +53,31 @@ export function LocationSelector({
       <PopoverContent className="w-full md:w-[200px] p-0">
         <Command>
           <CommandInput placeholder="Search location..." />
-          <CommandEmpty>No location found.</CommandEmpty>
-          <CommandGroup>
-            {locations.map((location) => (
-              <CommandItem
-                key={location.city}
-                value={location.city}
-                onSelect={() => {
-                  onLocationChange(location);
-                  setOpen(false);
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    selectedLocation?.city === location.city
-                      ? "opacity-100"
-                      : "opacity-0"
-                  )}
-                />
-                {location.city}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          <CommandList>
+            <CommandEmpty>No location found.</CommandEmpty>
+            <CommandGroup>
+              {locations.map((location) => (
+                <CommandItem
+                  key={location.city}
+                  value={location.city}
+                  onSelect={() => {
+                    onLocationChange(location);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      selectedLocation?.city === location.city
+                        ? "opacity-100"
+                        : "opacity-0"
+                    )}
+                  />
+                  {location.city}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
