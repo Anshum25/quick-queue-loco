@@ -24,12 +24,12 @@ export function HeroSection({ onCategorySelect }: HeroSectionProps) {
             <div className="typing-container">
               <span className="typing-text">Skip the Wait,</span>
             </div>
-            <div className="typing-container">
+            <div className="typing-container mt-2">
               <span className="typing-text typing-text-delay text-primary">Live Your Life</span>
             </div>
           </h1>
           
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-muted-foreground mt-8">
             Book your spot in line remotely and get notified when your turn is approaching.
             Save time at restaurants, hospitals, salons, and more.
           </p>
