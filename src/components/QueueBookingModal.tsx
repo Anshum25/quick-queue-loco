@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -34,6 +33,7 @@ export function QueueBookingModal({
   const { toast } = useToast();
   const [selectedService, setSelectedService] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleBooking = () => {
     setIsLoading(true);
@@ -41,6 +41,22 @@ export function QueueBookingModal({
     // Simulate API request
     setTimeout(() => {
       setIsLoading(false);
+      onClose();
+      
+      // Show success toast
+      toast({
+        title: "Queue spot booked!",
+        description: `You're in line at ${business.name}. We'll notify you when your turn is approaching.`,
+        duration: 5000,
+      });
+    }, 1500);
+  };
+
+  const handleSubmit = () => {
+    setIsSubmitting(true);
+    // Simulate API request
+    setTimeout(() => {
+      setIsSubmitting(false);
       onClose();
       
       // Show success toast
@@ -128,12 +144,12 @@ export function QueueBookingModal({
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            onClick={handleBooking}
-            disabled={business.services?.length ? !selectedService : false}
-            isLoading={isLoading}
+          <Button 
+            onClick={handleSubmit} 
+            disabled={isSubmitting}
+            className="w-full"
           >
-            Book Spot
+            {isSubmitting ? "Processing..." : "Confirm Booking"}
           </Button>
         </DialogFooter>
       </DialogContent>

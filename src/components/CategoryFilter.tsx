@@ -1,5 +1,6 @@
 
-import { BusinessCategory, categoryIcons, categoryLabels } from "@/lib/types";
+import { BusinessCategory } from "@/lib/types";
+import { categoryIcons, categoryLabels } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 

@@ -1,7 +1,8 @@
 
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Business, categoryIcons, getQueueColor } from "@/lib/data";
+import { Business } from "@/lib/types";
+import { categoryIcons, getQueueColor } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Clock, MapPin, Star, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -65,8 +66,7 @@ export function BusinessCard({ business }: BusinessCardProps) {
             </div>
             <Progress 
               value={(business.queueLength / 30) * 100} 
-              className={`h-2 bg-muted`}
-              indicatorClassName={`bg-${queueColor}`}
+              className={`h-2 bg-muted ${queueColor ? `data-[value]:bg-${queueColor}` : ''}`}
             />
           </div>
         </div>

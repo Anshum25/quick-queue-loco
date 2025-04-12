@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
-import { getBusinessById, getQueueColor, categoryIcons } from "@/lib/data";
+import { getBusinessById } from "@/lib/data";
+import { categoryIcons, getQueueColor } from "@/lib/types";
 import { locations } from "@/lib/data";
 import { QueueBookingModal } from "@/components/QueueBookingModal";
 import { Button } from "@/components/ui/button";
@@ -204,8 +204,7 @@ const BusinessDetails = () => {
                       </div>
                       <Progress 
                         value={(business.queueLength / 30) * 100} 
-                        className={`h-2 bg-muted`}
-                        indicatorClassName={`bg-${queueColor}`}
+                        className={`h-2 bg-muted ${queueColor ? `data-[value]:bg-${queueColor}` : ''}`}
                       />
                     </div>
                     

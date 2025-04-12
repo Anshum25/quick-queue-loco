@@ -42,3 +42,27 @@ export interface LocationInfo {
   state?: string;
   country?: string;
 }
+
+export const categoryLabels: Record<BusinessCategory, string> = {
+  restaurant: "Restaurants",
+  hospital: "Hospitals",
+  salon: "Salons",
+  government: "Government Offices",
+  repair: "Repair Shops",
+  bank: "Banks"
+};
+
+export const categoryIcons: Record<BusinessCategory, string> = {
+  restaurant: "🍔",
+  hospital: "🏥",
+  salon: "💇",
+  government: "🏛️",
+  repair: "🔧",
+  bank: "🏦"
+};
+
+export const getQueueColor = (waitTime: number): string => {
+  if (waitTime <= 20) return "queue-short";
+  if (waitTime <= 45) return "queue-medium";
+  return "queue-long";
+};

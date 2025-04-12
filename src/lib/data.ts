@@ -1,5 +1,4 @@
-
-import { Business, BusinessCategory, LocationInfo } from "./types";
+import { Business, BusinessCategory, LocationInfo, categoryIcons, categoryLabels, getQueueColor } from "./types";
 
 export const locations: LocationInfo[] = [
   { city: "Ahmedabad", state: "Gujarat", country: "India" },
@@ -143,29 +142,8 @@ export const sampleBusinesses: Business[] = [
   },
 ];
 
-export const categoryLabels: Record<BusinessCategory, string> = {
-  restaurant: "Restaurants",
-  hospital: "Hospitals",
-  salon: "Salons",
-  government: "Government Offices",
-  repair: "Repair Shops",
-  bank: "Banks"
-};
-
-export const categoryIcons: Record<BusinessCategory, string> = {
-  restaurant: "🍔",
-  hospital: "🏥",
-  salon: "💇",
-  government: "🏛️",
-  repair: "🔧",
-  bank: "🏦"
-};
-
-export const getQueueColor = (waitTime: number): string => {
-  if (waitTime <= 20) return "queue-short";
-  if (waitTime <= 45) return "queue-medium";
-  return "queue-long";
-};
+// Re-export these from types.ts for backward compatibility
+export { categoryLabels, categoryIcons, getQueueColor };
 
 export const getBusinessesByCategory = (category?: BusinessCategory): Business[] => {
   if (!category) return sampleBusinesses;
