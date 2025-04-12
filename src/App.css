@@ -48,3 +48,43 @@ a.underline-animation:hover::after {
   transform: scaleX(1);
   transform-origin: bottom left;
 }
+
+/* Typing animation */
+.typing-container {
+  display: inline-block;
+}
+
+.typing-text {
+  display: inline-block;
+  overflow: hidden;
+  border-right: 0.15em solid hsl(var(--primary));
+  white-space: nowrap;
+  margin: 0;
+  letter-spacing: 0.05em;
+  animation: 
+    typing 3.5s steps(40, end),
+    blink-caret 0.75s step-end infinite;
+}
+
+.typing-text-static {
+  display: inline-block;
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: hsl(var(--primary)) }
+}
+
+/* Second line animation delay */
+.typing-text-delay {
+  animation-delay: 1.5s;
+  width: 0;
+  animation: 
+    typing 3.5s steps(40, end) 1.5s forwards,
+    blink-caret 0.75s step-end infinite;
+}

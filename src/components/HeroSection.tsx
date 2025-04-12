@@ -21,8 +21,12 @@ export function HeroSection({ onCategorySelect }: HeroSectionProps) {
       <div className="container px-4 relative z-10">
         <div className="max-w-3xl mx-auto text-center space-y-6">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-            Skip the Wait,
-            <span className="block text-primary">Live Your Life</span>
+            <div className="typing-container">
+              <span className="typing-text">Skip the Wait,</span>
+            </div>
+            <div className="typing-container">
+              <span className="typing-text typing-text-delay text-primary">Live Your Life</span>
+            </div>
           </h1>
           
           <p className="text-lg text-muted-foreground">
