@@ -10,6 +10,7 @@ export interface Business {
   imageUrl: string;
   rating: number;
   services?: Service[];
+  departments?: Department[];
 }
 
 export type BusinessCategory = 
@@ -28,10 +29,20 @@ export interface Service {
   category?: string;
 }
 
+export interface Department {
+  id: string;
+  name: string;
+  waitTime: number; // in minutes
+  queueLength: number;
+  description?: string;
+  active: boolean;
+}
+
 export interface QueueBooking {
   id: string;
   businessId: string;
   serviceId?: string;
+  departmentId?: string;
   estimatedTime: number;
   position: number;
   status: "pending" | "active" | "completed" | "cancelled";

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -16,8 +17,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Business, Service } from "@/lib/types";
-import { Clock, Users } from "lucide-react";
+import { Business, Service, Department } from "@/lib/types";
+import { Clock, Users, Building2 } from "lucide-react";
+import { DepartmentSelector } from "./DepartmentSelector";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 interface QueueBookingModalProps {
   business: Business;
@@ -32,26 +36,19 @@ export function QueueBookingModal({
 }: QueueBookingModalProps) {
   const { toast } = useToast();
   const [selectedService, setSelectedService] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleBooking = () => {
-    setIsLoading(true);
-    
-    // Simulate API request
-    setTimeout(() => {
-      setIsLoading(false);
-      onClose();
-      
-      // Show success toast
-      toast({
-        title: "Queue spot booked!",
-        description: `You're in line at ${business.name}. We'll notify you when your turn is approaching.`,
-        duration: 5000,
-      });
-    }, 1500);
-  };
-
+  // Find selected service details
+  const service = business.services?.find(s => s.id === selectedService);
+  
+  // Determine if this business has departments (hospital-like)
+  const hasDepartments = business.departments && business.departments.length > 0;
+  
+  // Get the current queue status (either from department or business)
+  const currentQueueLength = selectedDepartment ? selectedDepartment.queueLength : business.queueLength;
+  const currentWaitTime = selectedDepartment ? selectedDepartment.waitTime : business.waitTime;
+  
   const handleSubmit = () => {
     setIsSubmitting(true);
     // Simulate API request
@@ -59,20 +56,33 @@ export function QueueBookingModal({
       setIsSubmitting(false);
       onClose();
       
+      let bookingDescription = `You're in line at ${business.name}`;
+      if (selectedDepartment) {
+        bookingDescription += ` (${selectedDepartment.name} department)`;
+      }
+      if (service) {
+        bookingDescription += ` for ${service.name}`;
+      }
+      bookingDescription += `. We'll notify you when your turn is approaching.`;
+      
       // Show success toast
       toast({
         title: "Queue spot booked!",
-        description: `You're in line at ${business.name}. We'll notify you when your turn is approaching.`,
+        description: bookingDescription,
         duration: 5000,
       });
     }, 1500);
   };
 
-  // Find selected service details
-  const service = business.services?.find(s => s.id === selectedService);
+  // Reset selected department when modal closes
+  const handleClose = () => {
+    setSelectedDepartment(null);
+    setSelectedService("");
+    onClose();
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Book Queue Spot</DialogTitle>
@@ -82,27 +92,61 @@ export function QueueBookingModal({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
+          {hasDepartments && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Select Department</label>
+              <DepartmentSelector
+                departments={business.departments || []}
+                selectedDepartment={selectedDepartment}
+                onDepartmentChange={setSelectedDepartment}
+              />
+            </div>
+          )}
+          
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col p-3 border rounded-md">
               <span className="text-sm text-muted-foreground mb-1">Current Queue</span>
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-primary" />
-                <span className="text-lg font-medium">{business.queueLength} people</span>
+                <span className="text-lg font-medium">{currentQueueLength} people</span>
               </div>
             </div>
             <div className="flex flex-col p-3 border rounded-md">
               <span className="text-sm text-muted-foreground mb-1">Estimated Wait</span>
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-primary" />
-                <span className="text-lg font-medium">{business.waitTime} mins</span>
+                <span className="text-lg font-medium">{currentWaitTime} mins</span>
               </div>
             </div>
+          </div>
+
+          {/* Queue visualization */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Queue Status</span>
+              <Badge variant={currentQueueLength > 15 ? "destructive" : "outline"}>
+                {currentQueueLength > 15 ? "Busy" : "Available"}
+              </Badge>
+            </div>
+            <Progress
+              value={(currentQueueLength / 30) * 100}
+              className="h-2"
+            />
+            <p className="text-xs text-muted-foreground">
+              {currentQueueLength > 0 
+                ? `You will be number ${currentQueueLength + 1} in line` 
+                : "No one ahead of you! Join now for immediate service."}
+            </p>
           </div>
 
           {business.services && business.services.length > 0 && (
             <div className="space-y-2">
               <label className="text-sm font-medium">Select Service</label>
-              <Select value={selectedService} onValueChange={setSelectedService}>
+              <Select 
+                value={selectedService} 
+                onValueChange={setSelectedService}
+                disabled={hasDepartments && !selectedDepartment}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Choose a service" />
                 </SelectTrigger>
@@ -114,6 +158,9 @@ export function QueueBookingModal({
                   ))}
                 </SelectContent>
               </Select>
+              {hasDepartments && !selectedDepartment && (
+                <p className="text-xs text-amber-500">Please select a department first</p>
+              )}
             </div>
           )}
 
@@ -138,15 +185,26 @@ export function QueueBookingModal({
               </div>
             </div>
           )}
+
+          {/* People ahead counter */}
+          {currentQueueLength > 0 && (
+            <div className="flex items-center justify-between bg-muted p-3 rounded-md">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-muted-foreground" />
+                <span>People ahead of you</span>
+              </div>
+              <span className="font-bold text-lg">{currentQueueLength}</span>
+            </div>
+          )}
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={handleClose}>
             Cancel
           </Button>
           <Button 
             onClick={handleSubmit} 
-            disabled={isSubmitting}
+            disabled={isSubmitting || (hasDepartments && !selectedDepartment)}
             className="w-full"
           >
             {isSubmitting ? "Processing..." : "Confirm Booking"}

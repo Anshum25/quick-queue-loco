@@ -8,6 +8,7 @@ import { QueueBookingModal } from "@/components/QueueBookingModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { LiveQueueStatus } from "@/components/LiveQueueStatus";
 import {
   Clock,
   MapPin,
@@ -17,6 +18,7 @@ import {
   Users,
   ArrowLeft,
   CalendarCheck,
+  Building2,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,12 +32,10 @@ const BusinessDetails = () => {
   const business = getBusinessById(id || "");
   
   useEffect(() => {
-    // Update page title
     if (business) {
       document.title = `${business.name} | Quick-Queue-Loco`;
     }
     
-    // Scroll to top when page loads
     window.scrollTo(0, 0);
   }, [business]);
   
@@ -62,13 +62,13 @@ const BusinessDetails = () => {
   }
   
   const queueColor = getQueueColor(business.waitTime);
+  const hasDepartments = business.departments && business.departments.length > 0;
   
   const renderServicesByCategory = () => {
     if (!business.services || business.services.length === 0) {
       return <p className="text-muted-foreground">No services available</p>;
     }
     
-    // Group services by category
     const servicesByCategory: Record<string, Service[]> = {};
     
     business.services.forEach(service => {
@@ -105,6 +105,26 @@ const BusinessDetails = () => {
             </div>
           </div>
         ))}
+      </div>
+    );
+  };
+
+  const renderDepartments = () => {
+    if (!business.departments || business.departments.length === 0) {
+      return (
+        <div className="text-center py-8">
+          <p className="text-muted-foreground">No departments available for this business</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {business.departments.map(department => (
+            <LiveQueueStatus key={department.id} department={department} />
+          ))}
+        </div>
       </div>
     );
   };
@@ -204,7 +224,7 @@ const BusinessDetails = () => {
                       </div>
                       <Progress 
                         value={(business.queueLength / 30) * 100} 
-                        className={`h-2 bg-muted ${queueColor ? `data-[value]:bg-${queueColor}` : ''}`}
+                        className="h-2"
                       />
                     </div>
                     
@@ -243,14 +263,28 @@ const BusinessDetails = () => {
             </div>
             
             <div className="mt-8">
-              <Tabs defaultValue="services">
-                <TabsList className="grid w-full grid-cols-2">
+              <Tabs defaultValue={hasDepartments ? "departments" : "services"}>
+                <TabsList className="grid w-full grid-cols-3">
+                  {hasDepartments && (
+                    <TabsTrigger value="departments">
+                      <Building2 className="h-4 w-4 mr-2" />
+                      Departments
+                    </TabsTrigger>
+                  )}
                   <TabsTrigger value="services">Services & Pricing</TabsTrigger>
                   <TabsTrigger value="reviews">Reviews</TabsTrigger>
                 </TabsList>
+                
+                {hasDepartments && (
+                  <TabsContent value="departments" className="mt-6">
+                    {renderDepartments()}
+                  </TabsContent>
+                )}
+                
                 <TabsContent value="services" className="mt-6">
                   {renderServicesByCategory()}
                 </TabsContent>
+                
                 <TabsContent value="reviews" className="mt-6">
                   <div className="text-center py-12">
                     <h3 className="text-lg font-medium">Reviews coming soon</h3>
