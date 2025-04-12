@@ -18,10 +18,10 @@ export function LiveQueueStatus({ department }: LiveQueueStatusProps) {
   };
   
   return (
-    <div className="border rounded-md p-4 space-y-3">
+    <div className="border rounded-md p-4 space-y-3 transition-all duration-300 hover:shadow-md animate-fade-in">
       <div className="flex justify-between items-center">
         <h3 className="font-medium">{department.name}</h3>
-        <span className={`${getStatusColor()} text-sm font-medium`}>
+        <span className={`${getStatusColor()} text-sm font-medium transition-colors duration-300`}>
           {department.queueLength <= 5 
             ? "Low Traffic" 
             : department.queueLength <= 15 
@@ -31,18 +31,18 @@ export function LiveQueueStatus({ department }: LiveQueueStatusProps) {
       </div>
       
       <div className="grid grid-cols-2 gap-2 text-sm">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 hover:scale-105 transition-transform duration-200">
           <Users className="h-4 w-4 text-muted-foreground" />
           <span>{department.queueLength} waiting</span>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 hover:scale-105 transition-transform duration-200">
           <Clock className="h-4 w-4 text-muted-foreground" />
           <span>~{department.waitTime} mins</span>
         </div>
       </div>
       
-      <div>
-        <Progress value={queuePercentage} className="h-2" />
+      <div className="relative overflow-hidden">
+        <Progress value={queuePercentage} className="h-2 transition-all duration-500" />
       </div>
     </div>
   );
