@@ -1,7 +1,5 @@
-
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Bell, Menu, User } from "lucide-react";
+import { Bell, Menu, User, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -71,9 +69,20 @@ export function Navbar({ selectedLocation, onLocationChange }: NavbarProps) {
             <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">2</Badge>
           </Button>
           
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center space-x-2">
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/login">
+                <LogIn className="h-5 w-5" />
+                <span className="sr-only">Login</span>
+              </Link>
+            </Button>
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/register">
+                <UserPlus className="h-5 w-5" />
+                <span className="sr-only">Register</span>
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </nav>
