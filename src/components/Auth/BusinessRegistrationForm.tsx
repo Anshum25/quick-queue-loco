@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -19,7 +18,10 @@ const businessSchema = z.object({
   address: z.string().min(5, "Please enter a valid address"),
   description: z.string().min(10, "Please provide a brief description of your business"),
   phone: z.string().min(10, "Please enter a valid phone number"),
-  // Category specific fields
+  email: z.string().email("Please enter a valid business email"),
+  website: z.string().url("Please enter a valid website URL").optional(),
+  taxId: z.string().min(5, "Please enter a valid tax ID"),
+  businessLicenseNumber: z.string().min(5, "Please enter a valid business license number"),
   specialties: z.array(z.string()).optional(),
   services: z.array(z.string()).optional(),
   openingHours: z.string().optional(),
@@ -49,6 +51,10 @@ const BusinessRegistrationForm = ({ userDetails }: BusinessRegistrationFormProps
       address: "",
       description: "",
       phone: "",
+      email: "",
+      website: "",
+      taxId: "",
+      businessLicenseNumber: "",
       specialties: [],
       services: [],
       openingHours: "",
@@ -231,96 +237,154 @@ const BusinessRegistrationForm = ({ userDetails }: BusinessRegistrationFormProps
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="businessName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Business Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Your Business Name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Business Category</FormLabel>
-                  <Select 
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      setSelectedCategory(value as BusinessCategory);
-                    }} 
-                    defaultValue={field.value}
-                  >
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="businessName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Name</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
+                      <Input placeholder="Your Business Name" {...field} />
                     </FormControl>
-                    <SelectContent>
-                      {(Object.keys(categoryLabels) as BusinessCategory[]).map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {categoryLabels[category]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Business Address</FormLabel>
-                  <FormControl>
-                    <Input placeholder="123 Business Street, City, State" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="business@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Business Phone</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Phone Number" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="website"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Website (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://your-business.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Business Description</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Tell us about your business..."
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="taxId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tax ID</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your business tax ID" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="businessLicenseNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business License Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your business license number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Category</FormLabel>
+                    <Select 
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        setSelectedCategory(value as BusinessCategory);
+                      }} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(Object.keys(categoryLabels) as BusinessCategory[]).map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {categoryLabels[category]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Address</FormLabel>
+                    <FormControl>
+                      <Input placeholder="123 Business Street, City, State" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Phone</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Phone Number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Description</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Tell us about your business..."
+                        className="min-h-[100px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {renderCategorySpecificFields()}
 
@@ -333,4 +397,3 @@ const BusinessRegistrationForm = ({ userDetails }: BusinessRegistrationFormProps
 };
 
 export default BusinessRegistrationForm;
-
