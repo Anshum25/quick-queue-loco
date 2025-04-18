@@ -25,6 +25,7 @@ interface BusinessRegistrationFormProps {
     name: string;
     email: string;
     password: string;
+    userType?: "customer" | "business";
   };
 }
 

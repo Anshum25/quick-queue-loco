@@ -45,7 +45,14 @@ const Register = () => {
   };
 
   if (showBusinessForm) {
-    return <BusinessRegistrationForm userDetails={form.getValues()} />;
+    // Ensure we pass the complete required user details
+    const userDetails = {
+      name: form.getValues("name"),
+      email: form.getValues("email"),
+      password: form.getValues("password"),
+      userType: form.getValues("userType")
+    };
+    return <BusinessRegistrationForm userDetails={userDetails} />;
   }
 
   return (
