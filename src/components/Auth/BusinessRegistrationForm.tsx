@@ -11,6 +11,7 @@ import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { BusinessCategory } from "@/lib/types";
 import { categoryLabels } from "@/lib/types";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const businessSchema = z.object({
   businessName: z.string().min(2, "Business name must be at least 2 characters"),
@@ -18,6 +19,13 @@ const businessSchema = z.object({
   address: z.string().min(5, "Please enter a valid address"),
   description: z.string().min(10, "Please provide a brief description of your business"),
   phone: z.string().min(10, "Please enter a valid phone number"),
+  // Category specific fields
+  specialties: z.array(z.string()).optional(),
+  services: z.array(z.string()).optional(),
+  openingHours: z.string().optional(),
+  license: z.string().optional(),
+  insurance: z.boolean().optional(),
+  facilities: z.array(z.string()).optional(),
 });
 
 interface BusinessRegistrationFormProps {
@@ -31,6 +39,7 @@ interface BusinessRegistrationFormProps {
 
 const BusinessRegistrationForm = ({ userDetails }: BusinessRegistrationFormProps) => {
   const { toast } = useToast();
+  const [selectedCategory, setSelectedCategory] = useState<BusinessCategory>("restaurant");
   
   const form = useForm<z.infer<typeof businessSchema>>({
     resolver: zodResolver(businessSchema),
@@ -40,6 +49,10 @@ const BusinessRegistrationForm = ({ userDetails }: BusinessRegistrationFormProps
       address: "",
       description: "",
       phone: "",
+      specialties: [],
+      services: [],
+      openingHours: "",
+      insurance: false,
     },
   });
 
@@ -54,6 +67,158 @@ const BusinessRegistrationForm = ({ userDetails }: BusinessRegistrationFormProps
       description: "This is a demo. Business registration will be implemented with Supabase.",
     });
     console.log(registrationData);
+  };
+
+  const renderCategorySpecificFields = () => {
+    switch (selectedCategory) {
+      case "restaurant":
+        return (
+          <>
+            <FormField
+              control={form.control}
+              name="specialties"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cuisine Types</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Italian, Chinese, Indian, etc." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="openingHours"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Opening Hours</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Mon-Sat: 9AM-10PM" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        );
+
+      case "hospital":
+        return (
+          <>
+            <FormField
+              control={form.control}
+              name="facilities"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Available Facilities</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Emergency, ICU, X-Ray, etc." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="license"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Medical License Number</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter medical license number" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="insurance"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Accept Insurance</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+          </>
+        );
+
+      case "salon":
+        return (
+          <>
+            <FormField
+              control={form.control}
+              name="services"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Services Offered</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Haircut, Coloring, Manicure, etc." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="openingHours"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Opening Hours</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Mon-Sat: 9AM-7PM" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        );
+
+      case "bank":
+        return (
+          <>
+            <FormField
+              control={form.control}
+              name="services"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Banking Services</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Savings, Loans, Credit Cards, etc." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="license"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Banking License Number</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter banking license number" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        );
+
+      default:
+        return null;
+    }
   };
 
   return (
@@ -86,7 +251,13 @@ const BusinessRegistrationForm = ({ userDetails }: BusinessRegistrationFormProps
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Business Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select 
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      setSelectedCategory(value as BusinessCategory);
+                    }} 
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
@@ -151,6 +322,8 @@ const BusinessRegistrationForm = ({ userDetails }: BusinessRegistrationFormProps
               )}
             />
 
+            {renderCategorySpecificFields()}
+
             <Button type="submit" className="w-full">Complete Registration</Button>
           </form>
         </Form>
@@ -160,3 +333,4 @@ const BusinessRegistrationForm = ({ userDetails }: BusinessRegistrationFormProps
 };
 
 export default BusinessRegistrationForm;
+
