@@ -9,10 +9,10 @@ import BusinessDetails from "./pages/BusinessDetails";
 import Bookings from "./pages/Bookings";
 import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
-import Login from "./pages/Auth/Login";
-import Register from "./pages/Auth/Register";
-import BusinessLogin from "./pages/Auth/BusinessLogin";
-import BusinessRegister from "./pages/Auth/BusinessRegister";
+import Login from "./pages/Auth/Customer/Login";
+import Register from "./pages/Auth/Customer/Register";
+import BusinessLogin from "./pages/Auth/Business/Login";
+import BusinessRegister from "./pages/Auth/Business/Register";
 import BusinessDashboard from "./pages/Business/Dashboard";
 import AdminDashboard from "./pages/Admin/Dashboard";
 
@@ -27,8 +27,8 @@ const App = () => (
         <Routes>
           {/* Customer routes */}
           <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/customer/login" element={<Login />} />
+          <Route path="/customer/register" element={<Register />} />
           <Route path="/business/:id" element={<BusinessDetails />} />
           <Route path="/bookings" element={<Bookings />} />
           <Route path="/notifications" element={<Notifications />} />

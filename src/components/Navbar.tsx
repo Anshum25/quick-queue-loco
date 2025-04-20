@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Bell, Menu, User, LogIn, UserPlus, Store } from "lucide-react";
@@ -104,13 +103,13 @@ export function Navbar({ selectedLocation, onLocationChange }: NavbarProps) {
           
           <div className="flex items-center space-x-2">
             <Button variant="ghost" size="icon" asChild>
-              <Link to="/login">
+              <Link to="/customer/login">
                 <LogIn className="h-5 w-5" />
                 <span className="sr-only">Login</span>
               </Link>
             </Button>
             <Button variant="ghost" size="icon" asChild>
-              <Link to="/register">
+              <Link to="/customer/register">
                 <UserPlus className="h-5 w-5" />
                 <span className="sr-only">Register</span>
               </Link>
