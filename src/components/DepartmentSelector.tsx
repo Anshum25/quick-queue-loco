@@ -32,7 +32,8 @@ export function DepartmentSelector({
   disabled = false
 }: DepartmentSelectorProps) {
   const [open, setOpen] = useState(false);
-  // Safely filter departments, ensuring we have a default empty array if departments is undefined
+  
+  // Safely filter departments, ensuring we have a default empty array
   const activeDepartments = Array.isArray(departments) 
     ? departments.filter(dept => dept.active)
     : [];
@@ -45,10 +46,10 @@ export function DepartmentSelector({
           role="combobox"
           aria-expanded={open}
           disabled={disabled || activeDepartments.length === 0}
-          className="w-full justify-between border-primary/20 bg-primary/5"
+          className="w-full justify-between"
         >
           <div className="flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-primary animate-pulse" />
+            <Building2 className="h-4 w-4 text-primary" />
             {selectedDepartment ? (
               <span>{selectedDepartment.name}</span>
             ) : (
