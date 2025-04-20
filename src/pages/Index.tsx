@@ -1,5 +1,8 @@
 
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { UserPlus, LogIn } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
 import { HeroSection } from "@/components/HeroSection";
 import { CategoryFilter } from "@/components/CategoryFilter";
