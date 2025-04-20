@@ -28,16 +28,18 @@ interface QueueBookingModalProps {
   business: Business;
   isOpen: boolean;
   onClose: () => void;
+  selectedDepartment?: Department | null;
 }
 
 export function QueueBookingModal({
   business,
   isOpen,
   onClose,
+  selectedDepartment: initialSelectedDepartment = null,
 }: QueueBookingModalProps) {
   const { toast } = useToast();
   const [selectedService, setSelectedService] = useState<string>("");
-  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(initialSelectedDepartment);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Get departments if this is a hospital
@@ -82,7 +84,7 @@ export function QueueBookingModal({
 
   // Reset selected department when modal closes
   const handleClose = () => {
-    setSelectedDepartment(null);
+    setSelectedDepartment(initialSelectedDepartment);
     setSelectedService("");
     onClose();
   };
