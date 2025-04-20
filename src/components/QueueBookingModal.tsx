@@ -22,6 +22,7 @@ import { Clock, Users, Building2 } from "lucide-react";
 import { DepartmentSelector } from "./DepartmentSelector";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { getDepartmentsForHospital } from "@/lib/data-departments";
 
 interface QueueBookingModalProps {
   business: Business;
@@ -38,12 +39,17 @@ export function QueueBookingModal({
   const [selectedService, setSelectedService] = useState<string>("");
   const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Get departments if this is a hospital
+  const departments = business.category === "hospital" 
+    ? getDepartmentsForHospital(business.id)
+    : [];
 
   // Find selected service details
   const service = business.services?.find(s => s.id === selectedService);
   
   // Determine if this business has departments (hospital-like)
-  const hasDepartments = business.departments && business.departments.length > 0;
+  const hasDepartments = departments.length > 0;
   
   // Get the current queue status (either from department or business)
   const currentQueueLength = selectedDepartment ? selectedDepartment.queueLength : business.queueLength;
@@ -96,7 +102,7 @@ export function QueueBookingModal({
             <div className="space-y-2">
               <label className="text-sm font-medium">Select Department</label>
               <DepartmentSelector
-                departments={business.departments || []}
+                departments={departments}
                 selectedDepartment={selectedDepartment}
                 onDepartmentChange={setSelectedDepartment}
               />

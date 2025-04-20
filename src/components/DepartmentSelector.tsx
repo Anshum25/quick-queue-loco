@@ -26,13 +26,16 @@ interface DepartmentSelectorProps {
 }
 
 export function DepartmentSelector({ 
-  departments,
+  departments = [],
   selectedDepartment, 
   onDepartmentChange,
   disabled = false
 }: DepartmentSelectorProps) {
   const [open, setOpen] = useState(false);
-  const activeDepartments = departments.filter(dept => dept.active);
+  // Safely filter departments, ensuring we have a default empty array if departments is undefined
+  const activeDepartments = Array.isArray(departments) 
+    ? departments.filter(dept => dept.active)
+    : [];
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

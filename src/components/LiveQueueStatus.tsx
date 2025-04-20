@@ -8,6 +8,14 @@ interface LiveQueueStatusProps {
 }
 
 export function LiveQueueStatus({ department }: LiveQueueStatusProps) {
+  if (!department) {
+    return (
+      <div className="border rounded-md p-4">
+        <p>No department selected</p>
+      </div>
+    );
+  }
+  
   const queuePercentage = Math.min((department.queueLength / 25) * 100, 100);
   
   // Determine status color based on queue length
