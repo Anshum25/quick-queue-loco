@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Bell, Menu, User, LogIn, UserPlus } from "lucide-react";
+import { Bell, Menu, User, LogIn, UserPlus, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -15,6 +15,14 @@ import { LocationInfo } from "@/lib/types";
 import { LocationSelector } from "@/components/LocationSelector";
 import { MobileNav } from "@/components/MobileNav";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface NavbarProps {
   selectedLocation: LocationInfo | null;
@@ -70,6 +78,29 @@ export function Navbar({ selectedLocation, onLocationChange }: NavbarProps) {
             <Bell className="h-5 w-5" />
             <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">2</Badge>
           </Button>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Store className="h-5 w-5" />
+                <span className="sr-only">Business Portal</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Business Portal</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/business/login">Business Login</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/business/register">Register Business</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/business/dashboard">Business Dashboard</Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           
           <div className="flex items-center space-x-2">
             <Button variant="ghost" size="icon" asChild>
