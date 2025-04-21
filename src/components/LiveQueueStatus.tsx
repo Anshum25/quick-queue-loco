@@ -1,4 +1,3 @@
-
 import { Department } from "@/lib/types";
 import { Progress } from "@/components/ui/progress";
 import { Users, Clock, AlertTriangle } from "lucide-react";
@@ -39,9 +38,9 @@ export function LiveQueueStatus({ department }: LiveQueueStatusProps) {
   };
   
   return (
-    <div className={`rounded-md p-4 space-y-4 transition-all duration-300 hover:shadow-md animate-fade-in ${getStatusBackground()}`}>
+    <div className={`rounded-md p-4 space-y-4 transition-all duration-300 hover:shadow-md animate-fade-in dark:bg-gray-800 ${getStatusBackground()}`}>
       <div className="flex justify-between items-center">
-        <h3 className="font-medium">{department.name}</h3>
+        <h3 className="font-medium dark:text-white">{department.name}</h3>
         <div className="flex items-center gap-1">
           <StatusIcon />
           <span className={`${getStatusColor()} text-sm font-medium transition-colors duration-300`}>
@@ -55,40 +54,35 @@ export function LiveQueueStatus({ department }: LiveQueueStatusProps) {
       </div>
       
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white rounded-md p-3 shadow-sm">
+        <div className="bg-white dark:bg-gray-700 rounded-md p-3 shadow-sm">
           <div className="flex items-center gap-1.5 mb-1">
             <Users className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Queue Length</span>
+            <span className="text-sm font-medium dark:text-gray-200">Queue Length</span>
           </div>
-          <p className="text-2xl font-bold">{department.queueLength}</p>
-          <p className="text-xs text-muted-foreground">people waiting</p>
+          <p className="text-2xl font-bold dark:text-white">{department.queueLength}</p>
+          <p className="text-xs text-muted-foreground dark:text-gray-400">people waiting</p>
         </div>
         
-        <div className="bg-white rounded-md p-3 shadow-sm">
+        <div className="bg-white dark:bg-gray-700 rounded-md p-3 shadow-sm">
           <div className="flex items-center gap-1.5 mb-1">
             <Clock className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Wait Time</span>
+            <span className="text-sm font-medium dark:text-gray-200">Wait Time</span>
           </div>
-          <p className="text-2xl font-bold">{department.waitTime}</p>
-          <p className="text-xs text-muted-foreground">minutes approx.</p>
+          <p className="text-2xl font-bold dark:text-white">{department.waitTime}</p>
+          <p className="text-xs text-muted-foreground dark:text-gray-400">minutes approx.</p>
         </div>
       </div>
       
       <div>
         <div className="flex justify-between items-center mb-1">
-          <span className="text-sm">Queue Status</span>
-          <span className="text-xs text-muted-foreground">{queuePercentage.toFixed(0)}% full</span>
+          <span className="text-sm dark:text-gray-200">Queue Status</span>
+          <span className="text-xs text-muted-foreground dark:text-gray-400">{queuePercentage.toFixed(0)}% full</span>
         </div>
-        <div className="relative overflow-hidden">
-          <Progress 
-            value={queuePercentage} 
-            className="h-2 transition-all duration-500" 
-          />
-        </div>
+        <Progress value={queuePercentage} className="h-2" />
       </div>
       
       {department.queueLength > 15 && (
-        <div className="text-xs text-muted-foreground text-center italic mt-2">
+        <div className="text-xs text-muted-foreground dark:text-gray-400 text-center italic mt-2">
           Consider booking at a less busy time for shorter wait
         </div>
       )}

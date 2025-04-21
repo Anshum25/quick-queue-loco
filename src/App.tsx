@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,38 +14,41 @@ import BusinessLogin from "./pages/Auth/BusinessLogin";
 import BusinessRegister from "./pages/Auth/BusinessRegister";
 import BusinessDashboard from "./pages/Business/Dashboard";
 import AdminDashboard from "./pages/Admin/Dashboard";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          {/* Customer routes */}
-          <Route path="/" element={<Index />} />
-          <Route path="/customer/login" element={<Login />} />
-          <Route path="/customer/register" element={<Register />} />
-          <Route path="/business/:id" element={<BusinessDetails />} />
-          <Route path="/bookings" element={<Bookings />} />
-          <Route path="/notifications" element={<Notifications />} />
-          
-          {/* Business routes */}
-          <Route path="/business/login" element={<BusinessLogin />} />
-          <Route path="/business/register" element={<BusinessRegister />} />
-          <Route path="/business/dashboard" element={<BusinessDashboard />} />
-          
-          {/* Admin routes */}
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          
-          {/* 404 */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ThemeProvider defaultTheme="system" enableSystem>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            {/* Customer routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/customer/login" element={<Login />} />
+            <Route path="/customer/register" element={<Register />} />
+            <Route path="/business/:id" element={<BusinessDetails />} />
+            <Route path="/bookings" element={<Bookings />} />
+            <Route path="/notifications" element={<Notifications />} />
+            
+            {/* Business routes */}
+            <Route path="/business/login" element={<BusinessLogin />} />
+            <Route path="/business/register" element={<BusinessRegister />} />
+            <Route path="/business/dashboard" element={<BusinessDashboard />} />
+            
+            {/* Admin routes */}
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            
+            {/* 404 */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { locations } from "@/lib/data";
@@ -6,17 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Clock, MapPin, X, RefreshCw } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { Clock, MapPin, X, RefreshCw, Sun, Moon } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { QueueBooking } from "@/lib/types";
+import { useTheme } from "next-themes";
 
 const Bookings = () => {
   const [selectedLocation, setSelectedLocation] = useState(locations[0]);
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const { theme, setTheme } = useTheme();
   
-  // Simulated bookings data - in a real app, this would come from an API
   const [activeBookings, setActiveBookings] = useState<QueueBooking[]>([
     {
       id: "b1",
@@ -47,7 +47,6 @@ const Bookings = () => {
     },
   ]);
 
-  // Business data - this would be fetched based on businessId in a real app
   const businessData = {
     "biz1": {
       name: "Polo Hospital",
@@ -69,34 +68,45 @@ const Bookings = () => {
     },
   };
   
-  // Simulate real-time updates
   useEffect(() => {
     const interval = setInterval(() => {
-      // Simulate API polling - this would be replaced with real API calls
-      
-      // Randomly update positions and wait times
       setActiveBookings(current => 
-        current.map(booking => ({
-          ...booking,
-          // Decrease position by 0 or 1 randomly
-          position: Math.max(1, booking.position - (Math.random() > 0.7 ? 1 : 0)),
-          // Decrease estimated time accordingly
-          estimatedTime: Math.max(5, booking.estimatedTime - (Math.random() > 0.7 ? 5 : 0)),
-        }))
+        current.map(booking => {
+          const newPosition = Math.max(1, booking.position - (Math.random() > 0.7 ? 1 : 0));
+          const newTime = Math.max(5, booking.estimatedTime - (Math.random() > 0.7 ? 5 : 0));
+          
+          if (newPosition <= 3 && booking.position > 3) {
+            toast({
+              title: "Your turn is approaching!",
+              description: `You are now position ${newPosition} in the queue.`,
+            });
+          }
+          
+          if (newTime <= 10 && booking.estimatedTime > 10) {
+            toast({
+              title: "Almost there!",
+              description: `Estimated wait time is now ${newTime} minutes.`,
+            });
+          }
+          
+          return {
+            ...booking,
+            position: newPosition,
+            estimatedTime: newTime,
+          };
+        })
       );
       
       setLastUpdated(new Date());
-    }, 30000); // Update every 30 seconds
+    }, 30000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [toast]);
   
   const handleCancelBooking = (id: string) => {
     setIsLoading(true);
     
-    // Simulate API call with a delay
     setTimeout(() => {
-      // Move the cancelled booking to past bookings with cancelled status
       const bookingToCancel = activeBookings.find(b => b.id === id);
       
       if (bookingToCancel) {
@@ -108,7 +118,6 @@ const Bookings = () => {
           ...prev
         ]);
         
-        // Remove from active bookings
         setActiveBookings(prev => prev.filter(b => b.id !== id));
         
         toast({
@@ -124,9 +133,7 @@ const Bookings = () => {
   const refreshBookings = () => {
     setIsLoading(true);
     
-    // Simulate API refresh
     setTimeout(() => {
-      // In a real app, this would be an API call to get the latest booking data
       setLastUpdated(new Date());
       setIsLoading(false);
       
@@ -157,7 +164,7 @@ const Bookings = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col dark:bg-gray-900">
       <Navbar
         selectedLocation={selectedLocation}
         onLocationChange={setSelectedLocation}
@@ -165,17 +172,30 @@ const Bookings = () => {
       
       <main className="flex-1 container px-4 py-8">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">My Queue Bookings</h1>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={refreshBookings} 
-            disabled={isLoading}
-            className="flex items-center gap-1"
-          >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
+          <h1 className="text-2xl font-bold dark:text-white">My Queue Bookings</h1>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            >
+              {theme === "light" ? (
+                <Moon className="h-4 w-4" />
+              ) : (
+                <Sun className="h-4 w-4" />
+              )}
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={refreshBookings} 
+              disabled={isLoading}
+              className="flex items-center gap-1"
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
         </div>
         
         <div className="text-sm text-muted-foreground mb-4">
@@ -317,9 +337,9 @@ const Bookings = () => {
         </Tabs>
       </main>
       
-      <footer className="bg-muted py-6">
+      <footer className="bg-muted py-6 dark:bg-gray-800">
         <div className="container px-4 text-center">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground dark:text-gray-400">
             © 2025 Quick-Queue-Loco. All rights reserved.
           </p>
         </div>
