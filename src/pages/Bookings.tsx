@@ -1,14 +1,36 @@
+
 import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { locations } from "@/lib/data";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Clock, MapPin, X, RefreshCw, Sun, Moon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { RefreshCw, Sun, Moon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { QueueBooking } from "@/lib/types";
 import { useTheme } from "next-themes";
+import { BookingsList } from "@/components/bookings/BookingsList";
+
+const businessData = {
+  "biz1": {
+    name: "Polo Hospital",
+    service: "General Checkup",
+    address: "123 Healthcare Ave, Ahmedabad",
+    time: "Today, 3:30 PM",
+  },
+  "biz2": {
+    name: "Style Studio Salon",
+    service: "Men's Haircut",
+    address: "78 Beauty Road, Ahmedabad",
+    time: "Yesterday, 2:00 PM",
+  },
+  "biz3": {
+    name: "State Bank of India",
+    service: "Cash Deposit/Withdrawal",
+    address: "45 Financial Street, Ahmedabad",
+    time: "Apr 10, 11:30 AM",
+  },
+};
 
 const Bookings = () => {
   const [selectedLocation, setSelectedLocation] = useState(locations[0]);
@@ -47,27 +69,6 @@ const Bookings = () => {
     },
   ]);
 
-  const businessData = {
-    "biz1": {
-      name: "Polo Hospital",
-      service: "General Checkup",
-      address: "123 Healthcare Ave, Ahmedabad",
-      time: "Today, 3:30 PM",
-    },
-    "biz2": {
-      name: "Style Studio Salon",
-      service: "Men's Haircut",
-      address: "78 Beauty Road, Ahmedabad",
-      time: "Yesterday, 2:00 PM",
-    },
-    "biz3": {
-      name: "State Bank of India",
-      service: "Cash Deposit/Withdrawal",
-      address: "45 Financial Street, Ahmedabad",
-      time: "Apr 10, 11:30 AM",
-    },
-  };
-  
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveBookings(current => 
@@ -154,15 +155,6 @@ const Bookings = () => {
     return `${diffMins} minutes ago`;
   };
 
-  const getBusinessDetails = (businessId: string) => {
-    return businessData[businessId as keyof typeof businessData] || {
-      name: "Unknown Business",
-      service: "Unknown Service",
-      address: "Unknown Address",
-      time: "Unknown Time",
-    };
-  };
-  
   return (
     <div className="min-h-screen flex flex-col dark:bg-gray-900">
       <Navbar
@@ -219,120 +211,25 @@ const Bookings = () => {
           </TabsList>
           
           <TabsContent value="active">
-            {activeBookings.length === 0 ? (
-              <div className="text-center py-12 bg-muted/30 rounded-lg">
-                <h3 className="text-lg font-medium">No active bookings</h3>
-                <p className="text-muted-foreground mt-2 mb-4">
-                  You don't have any active bookings in the queue at the moment.
-                </p>
-                <Button asChild>
-                  <a href="/">Find a service</a>
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {activeBookings.map((booking) => {
-                  const business = getBusinessDetails(booking.businessId);
-                  return (
-                    <Card key={booking.id} className="border-primary/20">
-                      <CardContent className="p-5">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <Badge className="mb-2">Active</Badge>
-                            <h3 className="text-lg font-bold">{business.name}</h3>
-                            <p className="text-muted-foreground">{business.service}</p>
-                          </div>
-                          <div className="bg-primary/10 px-4 py-2 rounded-lg text-center">
-                            <p className="text-sm text-muted-foreground">Your Position</p>
-                            <p className="text-2xl font-bold text-primary">{booking.position}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-4 space-y-2">
-                          <div className="flex items-start gap-2">
-                            <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                            <span className="text-sm">{business.address}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm">{business.time}</span>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium">Estimated Wait Time:</span>
-                            <span className="font-bold">{booking.estimatedTime} minutes</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            You'll receive a notification when your turn is approaching.
-                          </p>
-                        </div>
-                      </CardContent>
-                      
-                      <CardFooter className="p-5 pt-0">
-                        <Button 
-                          variant="outline" 
-                          className="w-full text-destructive hover:text-destructive"
-                          onClick={() => handleCancelBooking(booking.id)}
-                          disabled={isLoading}
-                        >
-                          <X className="h-4 w-4 mr-2" />
-                          {isLoading ? "Cancelling..." : "Cancel Booking"}
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
+            <BookingsList
+              activeBookings={activeBookings}
+              pastBookings={pastBookings}
+              isLoading={isLoading}
+              onCancelBooking={handleCancelBooking}
+              businessData={businessData}
+              type="active"
+            />
           </TabsContent>
           
           <TabsContent value="past">
-            {pastBookings.length === 0 ? (
-              <div className="text-center py-12 bg-muted/30 rounded-lg">
-                <h3 className="text-lg font-medium">No past bookings</h3>
-                <p className="text-muted-foreground mt-2">
-                  You don't have any past queue bookings.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {pastBookings.map((booking) => {
-                  const business = getBusinessDetails(booking.businessId);
-                  return (
-                    <Card key={booking.id} className="border-muted">
-                      <CardContent className="p-5">
-                        <div>
-                          <Badge variant={booking.status === "cancelled" ? "destructive" : "outline"} className="mb-2">
-                            {booking.status === "cancelled" ? "Cancelled" : "Completed"}
-                          </Badge>
-                          <h3 className="text-lg font-bold">{business.name}</h3>
-                          <p className="text-muted-foreground">{business.service}</p>
-                        </div>
-                        
-                        <div className="mt-4 space-y-2">
-                          <div className="flex items-start gap-2">
-                            <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                            <span className="text-sm">{business.address}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm">{business.time}</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                      
-                      <CardFooter className="p-5 pt-0 justify-end">
-                        {booking.status !== "cancelled" && (
-                          <Button variant="outline" size="sm">Book Again</Button>
-                        )}
-                      </CardFooter>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
+            <BookingsList
+              activeBookings={activeBookings}
+              pastBookings={pastBookings}
+              isLoading={isLoading}
+              onCancelBooking={handleCancelBooking}
+              businessData={businessData}
+              type="past"
+            />
           </TabsContent>
         </Tabs>
       </main>
