@@ -11,8 +11,8 @@ import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Auth/Customer/Login";
 import Register from "./pages/Auth/Customer/Register";
-import BusinessLogin from "./pages/Auth/Business/Login";
-import BusinessRegister from "./pages/Auth/Business/Register";
+import BusinessLogin from "./pages/Auth/BusinessLogin";
+import BusinessRegister from "./pages/Auth/BusinessRegister";
 import BusinessDashboard from "./pages/Business/Dashboard";
 import AdminDashboard from "./pages/Admin/Dashboard";
 
