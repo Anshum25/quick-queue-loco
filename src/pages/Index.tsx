@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { UserPlus, LogIn } from "lucide-react";
@@ -10,6 +9,7 @@ import { BusinessList } from "@/components/BusinessList";
 import { getBusinessesByCategory } from "@/lib/data";
 import { BusinessCategory, LocationInfo } from "@/lib/types";
 import { locations } from "@/lib/data";
+import { Footer } from "@/components/Footer";
 
 const Index = () => {
   const [selectedLocation, setSelectedLocation] = useState<LocationInfo | null>(locations[0]);
@@ -83,13 +83,7 @@ const Index = () => {
         </section>
       </main>
       
-      <footer className="bg-muted py-6">
-        <div className="container px-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            © 2025 Quick-Queue-Loco. All rights reserved.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
