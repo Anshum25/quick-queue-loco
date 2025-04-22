@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +15,8 @@ import BusinessLogin from "./pages/Auth/BusinessLogin";
 import BusinessRegister from "./pages/Auth/BusinessRegister";
 import BusinessDashboard from "./pages/Business/Dashboard";
 import AdminDashboard from "./pages/Admin/Dashboard";
+import AboutWeb from "./pages/AboutWeb";
+import Information from "./pages/Information";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 const queryClient = new QueryClient();
