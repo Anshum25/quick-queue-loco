@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { UserPlus, LogIn } from "lucide-react";
@@ -10,6 +11,13 @@ import { getBusinessesByCategory } from "@/lib/data";
 import { BusinessCategory, LocationInfo } from "@/lib/types";
 import { locations } from "@/lib/data";
 import { Footer } from "@/components/Footer";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const Index = () => {
   const [selectedLocation, setSelectedLocation] = useState<LocationInfo | null>(locations[0]);
@@ -19,7 +27,6 @@ const Index = () => {
   const handleCategorySelect = (category: BusinessCategory) => {
     setSelectedCategory(category);
     
-    // Scroll to the businesses section
     const exploreSection = document.getElementById("explore");
     if (exploreSection) {
       exploreSection.scrollIntoView({ behavior: "smooth" });
@@ -27,9 +34,38 @@ const Index = () => {
   };
 
   useEffect(() => {
-    // Update page title
     document.title = "Quick-Queue-Loco | Skip the Wait";
   }, []);
+
+  const informationSlides = [
+    {
+      title: "For Customers",
+      content: [
+        "Join virtual queues from anywhere",
+        "Receive real-time updates",
+        "Get notified when your turn approaches",
+        "View estimated wait times"
+      ]
+    },
+    {
+      title: "For Businesses",
+      content: [
+        "Manage queues efficiently",
+        "Track customer flow",
+        "Reduce wait times",
+        "Improve customer satisfaction"
+      ]
+    },
+    {
+      title: "How It Works",
+      content: [
+        "Choose your service provider",
+        "Join the virtual queue",
+        "Get real-time updates",
+        "Arrive just in time"
+      ]
+    }
+  ];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -79,6 +115,33 @@ const Index = () => {
               businesses={businesses}
               selectedCategory={selectedCategory}
             />
+          </div>
+        </section>
+
+        <section className="py-12 bg-secondary/10">
+          <div className="container px-4">
+            <h2 className="text-3xl font-bold text-center mb-8">Why Choose Quick-Queue-Loco?</h2>
+            <Carousel className="max-w-3xl mx-auto">
+              <CarouselContent>
+                {informationSlides.map((slide, index) => (
+                  <CarouselItem key={index} className="md:basis-1/1">
+                    <div className="p-6 bg-card rounded-lg shadow-sm space-y-4">
+                      <h3 className="text-2xl font-semibold text-center">{slide.title}</h3>
+                      <ul className="space-y-2">
+                        {slide.content.map((item, itemIndex) => (
+                          <li key={itemIndex} className="flex items-center text-muted-foreground">
+                            <span className="w-2 h-2 bg-primary rounded-full mr-2"></span>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
           </div>
         </section>
       </main>

@@ -16,7 +16,6 @@ import BusinessRegister from "./pages/Auth/BusinessRegister";
 import BusinessDashboard from "./pages/Business/Dashboard";
 import AdminDashboard from "./pages/Admin/Dashboard";
 import AboutWeb from "./pages/AboutWeb";
-import Information from "./pages/Information";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 const queryClient = new QueryClient();
@@ -32,7 +31,6 @@ const App = () => (
             {/* Customer routes */}
             <Route path="/" element={<Index />} />
             <Route path="/about-web" element={<AboutWeb />} />
-            <Route path="/information" element={<Information />} />
             <Route path="/customer/login" element={<Login />} />
             <Route path="/customer/register" element={<Register />} />
             <Route path="/business/:id" element={<BusinessDetails />} />
