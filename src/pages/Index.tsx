@@ -152,7 +152,14 @@ const Index = () => {
             <h2 className="text-3xl font-bold text-center mb-12 animate-fade-in">
               Why Choose Quick-Queue-Loco?
             </h2>
-            <Carousel className="max-w-5xl mx-auto">
+            <Carousel className="max-w-5xl mx-auto" opts={{
+              align: "start",
+              loop: true,
+              duration: 30,
+              skipSnaps: false,
+              dragFree: true,
+              watchDrag: false
+            }}>
               <CarouselContent>
                 {informationSlides.map((slide, index) => (
                   <CarouselItem key={index} className="md:basis-1/1">
