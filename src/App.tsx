@@ -11,7 +11,6 @@ import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Auth/Customer/Login";
 import Register from "./pages/Auth/Customer/Register";
-import BusinessLogin from "./pages/Auth/BusinessLogin";
 import BusinessRegister from "./pages/Auth/BusinessRegister";
 import BusinessDashboard from "./pages/Business/Dashboard";
 import AdminDashboard from "./pages/Admin/Dashboard";
@@ -32,6 +31,9 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/about-web" element={<AboutWeb />} />
             
+            {/* Unified login route */}
+            <Route path="/login" element={<Login />} />
+            
             {/* Customer routes */}
             <Route path="/customer/login" element={<Login />} />
             <Route path="/customer/register" element={<Register />} />
@@ -40,7 +42,6 @@ const App = () => (
             <Route path="/notifications" element={<Notifications />} />
             
             {/* Business routes */}
-            <Route path="/business/login" element={<BusinessLogin />} />
             <Route path="/business/register" element={<BusinessRegister />} />
             <Route path="/business/dashboard" element={<BusinessDashboard />} />
             
