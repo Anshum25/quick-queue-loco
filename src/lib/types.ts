@@ -11,6 +11,8 @@ export interface Business {
   rating: number;
   services?: Service[];
   departments?: Department[];
+  isPremium?: boolean; // Premium listing status
+  premiumBadge?: string; // Badge type for premium businesses
 }
 
 export type BusinessCategory = 
@@ -46,6 +48,8 @@ export interface QueueBooking {
   estimatedTime: number;
   position: number;
   status: "pending" | "active" | "completed" | "cancelled";
+  qrCodeUrl?: string; // URL for QR code check-in
+  attended?: boolean; // Whether user has checked in
 }
 
 export interface LocationInfo {
@@ -77,3 +81,13 @@ export const getQueueColor = (waitTime: number): string => {
   if (waitTime <= 45) return "queue-medium";
   return "queue-long";
 };
+
+// Subscription plans for users and businesses
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  features: string[];
+  type: "user" | "business";
+}
+

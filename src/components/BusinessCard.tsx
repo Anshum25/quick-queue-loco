@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Business } from "@/lib/types";
 import { categoryIcons, getQueueColor } from "@/lib/data";
 import { Button } from "@/components/ui/button";
-import { Clock, MapPin, Star, Users } from "lucide-react";
+import { Clock, MapPin, Star, Users, Award } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
@@ -16,18 +16,25 @@ export function BusinessCard({ business }: BusinessCardProps) {
   const queueColor = getQueueColor(business.waitTime);
   
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-md">
+    <Card className={`overflow-hidden transition-all hover:shadow-md ${business.isPremium ? 'border-2 border-primary' : ''}`}>
       <div className="aspect-video relative overflow-hidden">
         <img
           src={business.imageUrl}
           alt={business.name}
           className="w-full h-full object-cover transition-transform hover:scale-105"
         />
-        <div className="absolute top-2 right-2">
+        <div className="absolute top-2 right-2 flex gap-1">
           <Badge variant="secondary" className="font-medium">
             <span className="mr-1">{categoryIcons[business.category]}</span>
             {business.category.charAt(0).toUpperCase() + business.category.slice(1)}
           </Badge>
+          
+          {business.isPremium && (
+            <Badge variant="default" className="font-medium bg-amber-500">
+              <Award className="h-3 w-3 mr-1" />
+              {business.premiumBadge || "Premium"}
+            </Badge>
+          )}
         </div>
       </div>
       
