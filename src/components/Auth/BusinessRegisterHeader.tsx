@@ -1,15 +1,16 @@
 
 import { Store } from "lucide-react";
 
-const BusinessRegisterHeader = () => (
-  <div className="text-center mb-6">
-    <Store className="h-12 w-12 mx-auto text-primary" />
-    <h2 className="text-3xl font-bold tracking-tight mt-4">Register Your Business</h2>
-    <p className="text-muted-foreground mt-2">
-      Join our platform to manage your queue efficiently
-    </p>
-  </div>
-);
+const BusinessRegisterHeader = () => {
+  return (
+    <div className="space-y-2 text-center">
+      <Store className="mx-auto h-12 w-12 text-primary" />
+      <h1 className="text-2xl font-semibold tracking-tight">Register Your Business</h1>
+      <p className="text-muted-foreground">
+        Join our platform to manage your queues and grow your business
+      </p>
+    </div>
+  );
+};
 
 export default BusinessRegisterHeader;
-

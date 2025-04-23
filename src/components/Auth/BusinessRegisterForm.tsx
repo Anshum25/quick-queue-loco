@@ -212,4 +212,3 @@ const BusinessRegisterForm = () => {
 };
 
 export default BusinessRegisterForm;
-

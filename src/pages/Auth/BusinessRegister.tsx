@@ -23,4 +23,3 @@ const BusinessRegister = () => {
 };
 
 export default BusinessRegister;
-
