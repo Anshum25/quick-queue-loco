@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Business, Service, Department } from "@/lib/types";
-import { Clock, Users, Building2 } from "lucide-react";
+import { Clock, Users, QrCode, Ticket } from "lucide-react";
 import { DepartmentSelector } from "./DepartmentSelector";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -31,6 +31,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { QRCodeDisplay } from "./QRCodeDisplay";
 
 interface QueueBookingModalProps {
   business: Business;
@@ -63,7 +64,13 @@ export function QueueBookingModal({
   const [selectedService, setSelectedService] = useState<string>("");
   const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(initialSelectedDepartment);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState<"selection" | "questionnaire" | "confirmation">("selection");
+  const [currentStep, setCurrentStep] = useState<"selection" | "questionnaire" | "confirmation" | "success">("selection");
+  const [bookingData, setBookingData] = useState<{
+    id: string;
+    qrCodeUrl: string;
+    position: number;
+    estimatedTime: number;
+  } | null>(null);
   
   // Get departments if this is a hospital
   const departments = business.category === "hospital" 
@@ -110,12 +117,23 @@ export function QueueBookingModal({
     setCurrentStep("confirmation");
   };
 
+  const generateBookingId = (): string => {
+    // Generate a unique booking ID
+    const prefix = business.name.substring(0, 3).toUpperCase();
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    return `${prefix}-${timestamp}-${random}`;
+  };
+
   const handleSubmit = (values?: BookingQuestionnaireValues) => {
     setIsSubmitting(true);
-    // Simulate API request
+    
+    // Generate a unique booking ID
+    const bookingId = generateBookingId();
+    
+    // In a real app, this would be a server-side API call
     setTimeout(() => {
       setIsSubmitting(false);
-      onClose();
       
       let bookingDescription = `You're in line at ${business.name}`;
       if (selectedDepartment) {
@@ -131,6 +149,16 @@ export function QueueBookingModal({
         bookingDescription += `. We'll notify you when your turn is approaching.`;
       }
       
+      // Create booking data with QR code URL
+      setBookingData({
+        id: bookingId,
+        qrCodeUrl: `https://api.quickqueueapp.com/qr/${bookingId}`,
+        position: currentQueueLength + 1,
+        estimatedTime: currentWaitTime
+      });
+      
+      setCurrentStep("success");
+      
       // Show success toast
       toast({
         title: "Queue spot booked!",
@@ -140,11 +168,20 @@ export function QueueBookingModal({
     }, 1500);
   };
 
+  const handleDownloadQR = () => {
+    // In a real app, this would download the QR code as an image
+    toast({
+      title: "QR Code Saved",
+      description: "Your queue pass has been saved to your device.",
+    });
+  };
+
   // Reset selected department when modal closes
   const handleClose = () => {
     setSelectedDepartment(initialSelectedDepartment);
     setSelectedService("");
     setCurrentStep("selection");
+    setBookingData(null);
     form.reset();
     onClose();
   };
@@ -440,6 +477,29 @@ export function QueueBookingModal({
           </div>
         )}
 
+        {currentStep === "success" && bookingData && (
+          <div className="space-y-4 py-4 flex flex-col items-center">
+            <div className="flex items-center justify-center w-full mb-4">
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-3 py-1.5">
+                <Ticket className="w-4 h-4 mr-1" /> Booking Confirmed
+              </Badge>
+            </div>
+            
+            <QRCodeDisplay 
+              qrData={bookingData.qrCodeUrl}
+              bookingId={bookingData.id}
+              businessName={business.name}
+              onDownload={handleDownloadQR}
+            />
+            
+            <div className="text-center mt-4">
+              <p className="text-sm text-muted-foreground">
+                Your booking has been confirmed. You can access this QR code anytime in the "My Bookings" section.
+              </p>
+            </div>
+          </div>
+        )}
+
         <DialogFooter>
           {currentStep === "selection" && (
             <>
@@ -484,6 +544,15 @@ export function QueueBookingModal({
                 {isSubmitting ? "Processing..." : "Confirm Booking"}
               </Button>
             </>
+          )}
+
+          {currentStep === "success" && (
+            <Button 
+              onClick={handleClose}
+              className="w-full"
+            >
+              Done
+            </Button>
           )}
         </DialogFooter>
       </DialogContent>

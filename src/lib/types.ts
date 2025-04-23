@@ -90,4 +90,3 @@ export interface SubscriptionPlan {
   features: string[];
   type: "user" | "business";
 }
-

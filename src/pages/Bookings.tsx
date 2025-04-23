@@ -47,6 +47,7 @@ const Bookings = () => {
       estimatedTime: 25,
       position: 5,
       status: "active",
+      qrCodeUrl: "https://api.quickqueueapp.com/qr/POLO-123456-789"
     },
   ]);
   
@@ -58,6 +59,7 @@ const Bookings = () => {
       estimatedTime: 0,
       position: 0,
       status: "completed",
+      qrCodeUrl: "https://api.quickqueueapp.com/qr/STYLE-654321-987"
     },
     {
       id: "b3",
@@ -66,6 +68,7 @@ const Bookings = () => {
       estimatedTime: 0,
       position: 0,
       status: "completed",
+      qrCodeUrl: "https://api.quickqueueapp.com/qr/SBI-456789-123"
     },
   ]);
 
