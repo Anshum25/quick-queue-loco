@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { UserPlus, LogIn, QrCode, Clock } from "lucide-react";
+import { UserPlus, LogIn, QrCode, Clock, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function JoinSection() {
