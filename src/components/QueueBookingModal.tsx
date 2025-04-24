@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { Business, Department } from "@/lib/types";
 import {
   Dialog,
   DialogContent,
@@ -10,28 +9,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Business, Service, Department } from "@/lib/types";
-import { Clock, Users, QrCode, Ticket } from "lucide-react";
-import { DepartmentSelector } from "./DepartmentSelector";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { getDepartmentsForHospital } from "@/lib/data-departments";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { BookingSteps } from "./booking/BookingSteps";
+import { ServiceSelectionStep } from "./booking/ServiceSelectionStep";
 import { QRCodeDisplay } from "./QRCodeDisplay";
+import { useQueueBooking } from "@/hooks/useQueueBooking";
+import { BookingQuestionnaire } from "./booking/BookingQuestionnaire";
+import { BookingConfirmation } from "./booking/BookingConfirmation";
 
 interface QueueBookingModalProps {
   business: Business;
@@ -60,34 +47,17 @@ export function QueueBookingModal({
   onClose,
   selectedDepartment: initialSelectedDepartment = null,
 }: QueueBookingModalProps) {
-  const { toast } = useToast();
   const [selectedService, setSelectedService] = useState<string>("");
   const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(initialSelectedDepartment);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState<"selection" | "questionnaire" | "confirmation" | "success">("selection");
-  const [bookingData, setBookingData] = useState<{
-    id: string;
-    qrCodeUrl: string;
-    position: number;
-    estimatedTime: number;
-  } | null>(null);
   
-  // Get departments if this is a hospital
-  const departments = business.category === "hospital" 
-    ? getDepartmentsForHospital(business.id)
-    : [];
+  const {
+    currentStep,
+    setCurrentStep,
+    isSubmitting,
+    bookingData,
+    handleSubmit
+  } = useQueueBooking();
 
-  // Find selected service details
-  const service = business.services?.find(s => s.id === selectedService);
-  
-  // Determine if this business has departments (hospital-like)
-  const hasDepartments = departments.length > 0;
-  
-  // Get the current queue status (either from department or business)
-  const currentQueueLength = selectedDepartment ? selectedDepartment.queueLength : business.queueLength;
-  const currentWaitTime = selectedDepartment ? selectedDepartment.waitTime : business.waitTime;
-  
-  // Initialize the form
   const form = useForm<BookingQuestionnaireValues>({
     resolver: zodResolver(bookingQuestionnaireSchema),
     defaultValues: {
@@ -98,18 +68,21 @@ export function QueueBookingModal({
     },
   });
 
+  // Get departments if this is a hospital
+  const departments = business.departments || [];
+  
+  // Determine if this business has departments
+  const hasDepartments = departments.length > 0;
+  
+  // Get the current queue status (either from department or business)
+  const currentQueueLength = selectedDepartment ? selectedDepartment.queueLength : business.queueLength;
+  const currentWaitTime = selectedDepartment ? selectedDepartment.waitTime : business.waitTime;
+
   const handleProceedToQuestionnaire = () => {
-    // Only proceed if required selections are made
     if ((hasDepartments && !selectedDepartment) || 
         (business.services && business.services.length > 0 && !selectedService)) {
-      toast({
-        title: "Required selection missing",
-        description: hasDepartments ? "Please select a department" : "Please select a service",
-        variant: "destructive",
-      });
       return;
     }
-    
     setCurrentStep("questionnaire");
   };
 
@@ -117,71 +90,10 @@ export function QueueBookingModal({
     setCurrentStep("confirmation");
   };
 
-  const generateBookingId = (): string => {
-    // Generate a unique booking ID
-    const prefix = business.name.substring(0, 3).toUpperCase();
-    const timestamp = Date.now().toString().slice(-6);
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    return `${prefix}-${timestamp}-${random}`;
-  };
-
-  const handleSubmit = (values?: BookingQuestionnaireValues) => {
-    setIsSubmitting(true);
-    
-    // Generate a unique booking ID
-    const bookingId = generateBookingId();
-    
-    // In a real app, this would be a server-side API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      
-      let bookingDescription = `You're in line at ${business.name}`;
-      if (selectedDepartment) {
-        bookingDescription += ` (${selectedDepartment.name} department)`;
-      }
-      if (service) {
-        bookingDescription += ` for ${service.name}`;
-      }
-      
-      if (values) {
-        bookingDescription += `. Priority: ${values.urgencyLevel}. We'll contact you via ${values.preferredContactMethod}.`;
-      } else {
-        bookingDescription += `. We'll notify you when your turn is approaching.`;
-      }
-      
-      // Create booking data with QR code URL
-      setBookingData({
-        id: bookingId,
-        qrCodeUrl: `https://api.quickqueueapp.com/qr/${bookingId}`,
-        position: currentQueueLength + 1,
-        estimatedTime: currentWaitTime
-      });
-      
-      setCurrentStep("success");
-      
-      // Show success toast
-      toast({
-        title: "Queue spot booked!",
-        description: bookingDescription,
-        duration: 5000,
-      });
-    }, 1500);
-  };
-
-  const handleDownloadQR = () => {
-    // In a real app, this would download the QR code as an image
-    toast({
-      title: "QR Code Saved",
-      description: "Your queue pass has been saved to your device.",
-    });
-  };
-
-  // Reset selected department when modal closes
   const handleClose = () => {
     setSelectedDepartment(initialSelectedDepartment);
     setSelectedService("");
     setCurrentStep("selection");
-    setBookingData(null);
     form.reset();
     onClose();
   };
@@ -196,307 +108,49 @@ export function QueueBookingModal({
           </DialogDescription>
         </DialogHeader>
 
+        <BookingSteps currentStep={currentStep} />
+
         {currentStep === "selection" && (
-          <div className="space-y-4 py-4">
-            {hasDepartments && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Select Department</label>
-                <DepartmentSelector
-                  departments={departments}
-                  selectedDepartment={selectedDepartment}
-                  onDepartmentChange={setSelectedDepartment}
-                />
-              </div>
-            )}
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col p-3 border rounded-md">
-                <span className="text-sm text-muted-foreground mb-1">Current Queue</span>
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-primary" />
-                  <span className="text-lg font-medium">{currentQueueLength} people</span>
-                </div>
-              </div>
-              <div className="flex flex-col p-3 border rounded-md">
-                <span className="text-sm text-muted-foreground mb-1">Estimated Wait</span>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-primary" />
-                  <span className="text-lg font-medium">{currentWaitTime} mins</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Queue visualization */}
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Queue Status</span>
-                <Badge variant={currentQueueLength > 15 ? "destructive" : "outline"}>
-                  {currentQueueLength > 15 ? "Busy" : "Available"}
-                </Badge>
-              </div>
-              <Progress
-                value={(currentQueueLength / 30) * 100}
-                className="h-2"
-              />
-              <p className="text-xs text-muted-foreground">
-                {currentQueueLength > 0 
-                  ? `You will be number ${currentQueueLength + 1} in line` 
-                  : "No one ahead of you! Join now for immediate service."}
-              </p>
-            </div>
-
-            {business.services && business.services.length > 0 && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Select Service</label>
-                <Select 
-                  value={selectedService} 
-                  onValueChange={setSelectedService}
-                  disabled={hasDepartments && !selectedDepartment}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a service" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {business.services.map((service) => (
-                      <SelectItem key={service.id} value={service.id}>
-                        {service.name} - ₹{service.price}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {hasDepartments && !selectedDepartment && (
-                  <p className="text-xs text-amber-500">Please select a department first</p>
-                )}
-              </div>
-            )}
-
-            {service && (
-              <div className="bg-muted/50 p-3 rounded-md space-y-2">
-                <h4 className="font-medium">{service.name}</h4>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Price:</span>{" "}
-                    <span className="font-medium">₹{service.price}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Duration:</span>{" "}
-                    <span className="font-medium">{service.duration} mins</span>
-                  </div>
-                  {service.category && (
-                    <div className="col-span-2">
-                      <span className="text-muted-foreground">Category:</span>{" "}
-                      <span className="font-medium">{service.category}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* People ahead counter */}
-            {currentQueueLength > 0 && (
-              <div className="flex items-center justify-between bg-muted p-3 rounded-md">
-                <div className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-muted-foreground" />
-                  <span>People ahead of you</span>
-                </div>
-                <span className="font-bold text-lg">{currentQueueLength}</span>
-              </div>
-            )}
-          </div>
+          <ServiceSelectionStep
+            business={business}
+            selectedService={selectedService}
+            setSelectedService={setSelectedService}
+            selectedDepartment={selectedDepartment}
+            setSelectedDepartment={setSelectedDepartment}
+            currentQueueLength={currentQueueLength}
+            currentWaitTime={currentWaitTime}
+            onProceed={handleProceedToQuestionnaire}
+            hasDepartments={hasDepartments}
+          />
         )}
 
         {currentStep === "questionnaire" && (
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleProceedToConfirmation)} className="space-y-4 py-4">
-              <FormField
-                control={form.control}
-                name="urgencyLevel"
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel>How urgent is your visit?</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex flex-col space-y-1"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="low" id="urgency-low" />
-                          <Label htmlFor="urgency-low">Not urgent - routine visit</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="medium" id="urgency-medium" />
-                          <Label htmlFor="urgency-medium">Somewhat urgent</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="high" id="urgency-high" />
-                          <Label htmlFor="urgency-high">Very urgent</Label>
-                        </div>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="specialRequirements"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Any special requirements or notes?</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="E.g., wheelchair access, language preferences, etc."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      This helps us prepare for your visit.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="preferredContactMethod"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Preferred contact method</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select contact method" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="phone">Phone Call</SelectItem>
-                        <SelectItem value="sms">SMS</SelectItem>
-                        <SelectItem value="email">Email</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="contactInfo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact information</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder={field.value === "email" ? "Email address" : "Phone number"} 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      We'll use this to notify you about your queue status.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="pt-2">
-                <Button type="submit" className="w-full">
-                  Continue
-                </Button>
-              </div>
-            </form>
-          </Form>
+          <BookingQuestionnaire
+            form={form}
+            onSubmit={handleProceedToConfirmation}
+          />
         )}
 
         {currentStep === "confirmation" && (
-          <div className="space-y-4 py-4">
-            <div className="bg-muted/30 p-4 rounded-md space-y-3">
-              <h3 className="font-medium text-lg">Booking Summary</h3>
-              
-              <div className="space-y-2 text-sm">
-                <div className="grid grid-cols-3 gap-1">
-                  <span className="text-muted-foreground">Business:</span>
-                  <span className="col-span-2 font-medium">{business.name}</span>
-                </div>
-                
-                {selectedDepartment && (
-                  <div className="grid grid-cols-3 gap-1">
-                    <span className="text-muted-foreground">Department:</span>
-                    <span className="col-span-2 font-medium">{selectedDepartment.name}</span>
-                  </div>
-                )}
-                
-                {service && (
-                  <div className="grid grid-cols-3 gap-1">
-                    <span className="text-muted-foreground">Service:</span>
-                    <span className="col-span-2 font-medium">{service.name} (₹{service.price})</span>
-                  </div>
-                )}
-                
-                <div className="grid grid-cols-3 gap-1">
-                  <span className="text-muted-foreground">Wait Time:</span>
-                  <span className="col-span-2 font-medium">{currentWaitTime} mins (approx)</span>
-                </div>
-                
-                <div className="grid grid-cols-3 gap-1">
-                  <span className="text-muted-foreground">Queue Position:</span>
-                  <span className="col-span-2 font-medium">#{currentQueueLength + 1}</span>
-                </div>
-                
-                <div className="grid grid-cols-3 gap-1">
-                  <span className="text-muted-foreground">Urgency:</span>
-                  <span className="col-span-2 font-medium capitalize">{form.getValues().urgencyLevel}</span>
-                </div>
-                
-                <div className="grid grid-cols-3 gap-1">
-                  <span className="text-muted-foreground">Contact Via:</span>
-                  <span className="col-span-2 font-medium capitalize">{form.getValues().preferredContactMethod}</span>
-                </div>
-                
-                {form.getValues().specialRequirements && (
-                  <div className="grid grid-cols-3 gap-1">
-                    <span className="text-muted-foreground">Notes:</span>
-                    <span className="col-span-2 italic">{form.getValues().specialRequirements}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            <div className="rounded-md border border-amber-200 bg-amber-50 p-3">
-              <p className="text-sm text-amber-800">
-                By confirming this booking, you agree to arrive on time for your appointment. 
-                Missing your slot may result in being moved to the end of the queue.
-              </p>
-            </div>
-          </div>
+          <BookingConfirmation
+            business={business}
+            selectedDepartment={selectedDepartment}
+            service={business.services?.find(s => s.id === selectedService)}
+            currentWaitTime={currentWaitTime}
+            currentQueueLength={currentQueueLength}
+            form={form}
+            isSubmitting={isSubmitting}
+            onSubmit={handleSubmit}
+          />
         )}
 
         {currentStep === "success" && bookingData && (
           <div className="space-y-4 py-4 flex flex-col items-center">
-            <div className="flex items-center justify-center w-full mb-4">
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-3 py-1.5">
-                <Ticket className="w-4 h-4 mr-1" /> Booking Confirmed
-              </Badge>
-            </div>
-            
             <QRCodeDisplay 
               qrData={bookingData.qrCodeUrl}
               bookingId={bookingData.id}
               businessName={business.name}
-              onDownload={handleDownloadQR}
             />
-            
-            <div className="text-center mt-4">
-              <p className="text-sm text-muted-foreground">
-                Your booking has been confirmed. You can access this QR code anytime in the "My Bookings" section.
-              </p>
-            </div>
           </div>
         )}
 
@@ -537,7 +191,7 @@ export function QueueBookingModal({
                 Back
               </Button>
               <Button 
-                onClick={() => handleSubmit(form.getValues())}
+                onClick={() => handleSubmit(business.name, form.getValues())}
                 disabled={isSubmitting}
                 className="w-full"
               >
