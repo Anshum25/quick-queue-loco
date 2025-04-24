@@ -2,9 +2,7 @@
 import { useState } from "react";
 import { Business, BusinessCategory } from "@/lib/types";
 import { BusinessCard } from "@/components/BusinessCard";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { SearchFilters, FilterOptions, SortOption } from "@/components/SearchFilters";
 
 interface BusinessListProps {
   businesses: Business[];
@@ -13,15 +11,37 @@ interface BusinessListProps {
 
 export function BusinessList({ businesses, selectedCategory }: BusinessListProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOption, setSortOption] = useState("distance");
+  const [sortOption, setSortOption] = useState<SortOption>("distance");
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+    maxDistance: 5,
+    minRating: 3,
+    maxWaitTime: 60
+  });
 
-  // Filter businesses by search query
+  // Reset filters to default
+  const handleResetFilters = () => {
+    setFilterOptions({
+      maxDistance: 5,
+      minRating: 3,
+      maxWaitTime: 60
+    });
+  };
+
+  // Filter businesses based on search query and filter options
   const filteredBusinesses = businesses.filter((business) => {
+    // Search filter
     const searchLower = searchQuery.toLowerCase();
-    return (
+    const matchesSearch = searchQuery === "" || 
       business.name.toLowerCase().includes(searchLower) ||
-      business.address.toLowerCase().includes(searchLower)
-    );
+      business.address.toLowerCase().includes(searchLower) ||
+      business.category.toLowerCase().includes(searchLower);
+    
+    // Filter by distance, rating and wait time
+    const matchesDistance = business.distance <= filterOptions.maxDistance;
+    const matchesRating = business.rating >= filterOptions.minRating;
+    const matchesWaitTime = business.waitTime <= filterOptions.maxWaitTime;
+
+    return matchesSearch && matchesDistance && matchesRating && matchesWaitTime;
   });
 
   // Sort businesses based on selected option
@@ -40,27 +60,15 @@ export function BusinessList({ businesses, selectedCategory }: BusinessListProps
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search businesses..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <Select value={sortOption} onValueChange={setSortOption}>
-          <SelectTrigger className="w-full md:w-[180px]">
-            <SelectValue placeholder="Sort by" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="distance">Distance</SelectItem>
-            <SelectItem value="waitTime">Wait Time</SelectItem>
-            <SelectItem value="rating">Rating</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <SearchFilters
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        sortOption={sortOption}
+        setSortOption={setSortOption}
+        filterOptions={filterOptions}
+        setFilterOptions={setFilterOptions}
+        onResetFilters={handleResetFilters}
+      />
 
       {sortedBusinesses.length === 0 ? (
         <div className="text-center py-12">

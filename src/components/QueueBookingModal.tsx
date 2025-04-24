@@ -1,15 +1,7 @@
+
 import { useState } from "react";
-import { Business, Department } from "@/lib/types";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,52 +12,34 @@ import { useQueueBooking } from "@/hooks/useQueueBooking";
 import { BookingQuestionnaire } from "./booking/BookingQuestionnaire";
 import { BookingConfirmation } from "./booking/BookingConfirmation";
 
-interface QueueBookingModalProps {
-  business: Business;
-  isOpen: boolean;
-  onClose: () => void;
-  selectedDepartment?: Department | null;
-}
-
 // Define the schema for the booking questionnaire
 const bookingQuestionnaireSchema = z.object({
   urgencyLevel: z.enum(["low", "medium", "high"], {
-    required_error: "Please select urgency level",
+    required_error: "Please select urgency level"
   }),
   specialRequirements: z.string().optional(),
   preferredContactMethod: z.enum(["phone", "email", "sms"], {
-    required_error: "Please select contact method",
+    required_error: "Please select contact method"
   }),
-  contactInfo: z.string().min(3, "Contact information is required"),
+  contactInfo: z.string().min(3, "Contact information is required")
 });
 
-type BookingQuestionnaireValues = z.infer<typeof bookingQuestionnaireSchema>;
+// Define the TypeScript type from the schema
+type QuestionnaireFormValues = z.infer<typeof bookingQuestionnaireSchema>;
 
-export function QueueBookingModal({
-  business,
-  isOpen,
-  onClose,
-  selectedDepartment: initialSelectedDepartment = null,
-}: QueueBookingModalProps) {
-  const [selectedService, setSelectedService] = useState<string>("");
-  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(initialSelectedDepartment);
-  
-  const {
-    currentStep,
-    setCurrentStep,
-    isSubmitting,
-    bookingData,
-    handleSubmit
-  } = useQueueBooking();
+export function QueueBookingModal({ business, isOpen, onClose, selectedDepartment: initialSelectedDepartment = null }) {
+  const [selectedService, setSelectedService] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState(initialSelectedDepartment);
+  const { currentStep, setCurrentStep, isSubmitting, bookingData, handleSubmit } = useQueueBooking();
 
-  const form = useForm<BookingQuestionnaireValues>({
+  const form = useForm<QuestionnaireFormValues>({
     resolver: zodResolver(bookingQuestionnaireSchema),
     defaultValues: {
       urgencyLevel: "medium",
       specialRequirements: "",
       preferredContactMethod: "phone",
-      contactInfo: "",
-    },
+      contactInfo: ""
+    }
   });
 
   // Get departments if this is a hospital
@@ -79,8 +53,7 @@ export function QueueBookingModal({
   const currentWaitTime = selectedDepartment ? selectedDepartment.waitTime : business.waitTime;
 
   const handleProceedToQuestionnaire = () => {
-    if ((hasDepartments && !selectedDepartment) || 
-        (business.services && business.services.length > 0 && !selectedService)) {
+    if ((hasDepartments && !selectedDepartment) || (business.services && business.services.length > 0 && !selectedService)) {
       return;
     }
     setCurrentStep("questionnaire");
@@ -107,9 +80,9 @@ export function QueueBookingModal({
             Join the queue remotely for {business.name}
           </DialogDescription>
         </DialogHeader>
-
+        
         <BookingSteps currentStep={currentStep} />
-
+        
         {currentStep === "selection" && (
           <ServiceSelectionStep
             business={business}
@@ -146,7 +119,7 @@ export function QueueBookingModal({
 
         {currentStep === "success" && bookingData && (
           <div className="space-y-4 py-4 flex flex-col items-center">
-            <QRCodeDisplay 
+            <QRCodeDisplay
               qrData={bookingData.qrCodeUrl}
               bookingId={bookingData.id}
               businessName={business.name}
@@ -160,7 +133,7 @@ export function QueueBookingModal({
               <Button variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button 
+              <Button
                 onClick={handleProceedToQuestionnaire}
                 disabled={isSubmitting || (hasDepartments && !selectedDepartment)}
                 className="w-full"
@@ -172,10 +145,13 @@ export function QueueBookingModal({
 
           {currentStep === "questionnaire" && (
             <>
-              <Button variant="outline" onClick={() => setCurrentStep("selection")}>
+              <Button
+                variant="outline"
+                onClick={() => setCurrentStep("selection")}
+              >
                 Back
               </Button>
-              <Button 
+              <Button
                 onClick={form.handleSubmit(handleProceedToConfirmation)}
                 disabled={isSubmitting}
                 className="w-full"
@@ -187,10 +163,13 @@ export function QueueBookingModal({
 
           {currentStep === "confirmation" && (
             <>
-              <Button variant="outline" onClick={() => setCurrentStep("questionnaire")}>
+              <Button
+                variant="outline"
+                onClick={() => setCurrentStep("questionnaire")}
+              >
                 Back
               </Button>
-              <Button 
+              <Button
                 onClick={() => handleSubmit(business.name, form.getValues())}
                 disabled={isSubmitting}
                 className="w-full"
@@ -201,7 +180,7 @@ export function QueueBookingModal({
           )}
 
           {currentStep === "success" && (
-            <Button 
+            <Button
               onClick={handleClose}
               className="w-full"
             >

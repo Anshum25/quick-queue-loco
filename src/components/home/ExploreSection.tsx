@@ -1,5 +1,5 @@
 
-import { BusinessCategory, Business, SubscriptionPlan } from "@/lib/types";
+import { BusinessCategory, Business } from "@/lib/types";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { BusinessList } from "@/components/BusinessList";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

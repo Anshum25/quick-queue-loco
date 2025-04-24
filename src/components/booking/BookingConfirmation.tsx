@@ -1,26 +1,27 @@
 
-import React from "react";
 import { UseFormReturn } from "react-hook-form";
-import { Business, Department, Service } from "@/lib/types";
+import { Business } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
-import { Clock, Users, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Clock, MapPin, Calendar, User, Phone } from "lucide-react";
+
+// Type for booking questionnaire form
+type QuestionnaireFormValues = {
+  urgencyLevel: "high" | "low" | "medium";
+  specialRequirements: string;
+  preferredContactMethod: "email" | "phone" | "sms";
+  contactInfo: string;
+};
 
 interface BookingConfirmationProps {
   business: Business;
-  selectedDepartment: Department | null;
-  service: Service | undefined;
+  selectedDepartment: any;
+  service: any;
   currentWaitTime: number;
   currentQueueLength: number;
-  form: UseFormReturn<{
-    urgencyLevel: "low" | "medium" | "high";
-    specialRequirements: string;
-    preferredContactMethod: "phone" | "email" | "sms";
-    contactInfo: string;
-  }>;
+  form: UseFormReturn<QuestionnaireFormValues>;
   isSubmitting: boolean;
-  onSubmit: (businessName: string, values: any) => void;
+  onSubmit: (businessName: string, formValues: any) => void;
 }
 
 export function BookingConfirmation({
@@ -29,93 +30,106 @@ export function BookingConfirmation({
   service,
   currentWaitTime,
   currentQueueLength,
-  form,
-  isSubmitting,
-  onSubmit,
+  form
 }: BookingConfirmationProps) {
   const formValues = form.getValues();
+  const serviceName = service ? service.name : (selectedDepartment ? selectedDepartment.name : "General Queue");
+  const urgencyLabels = {
+    low: "Low Priority",
+    medium: "Standard Priority",
+    high: "High Priority"
+  };
   
-  const getUrgencyLabel = () => {
-    switch(formValues.urgencyLevel) {
-      case "low": return "Low - Not urgent";
-      case "medium": return "Medium - Standard";
-      case "high": return "High - Urgent";
-      default: return "Medium";
-    }
+  const contactMethodLabels = {
+    phone: "Phone call",
+    sms: "SMS",
+    email: "Email"
   };
 
   return (
-    <div className="space-y-4">
-      <Card className="overflow-hidden border-primary/10">
-        <CardContent className="p-4 space-y-4">
-          <div className="space-y-2">
-            <h3 className="font-medium text-lg">{business.name}</h3>
-            {selectedDepartment && (
-              <p className="text-sm text-muted-foreground">
-                Department: {selectedDepartment.name}
-              </p>
-            )}
-            {service && (
-              <p className="text-sm">
-                Service: <span className="font-medium">{service.name}</span> - ₹{service.price}
-              </p>
-            )}
+    <div className="space-y-4 py-4">
+      <h3 className="text-lg font-medium">Booking Summary</h3>
+      
+      <Card>
+        <CardContent className="p-4 space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-muted-foreground">Business</span>
+            <span className="font-medium">{business.name}</span>
+          </div>
+          
+          <div className="flex justify-between items-center">
+            <span className="text-muted-foreground">Service</span>
+            <span className="font-medium">{serviceName}</span>
+          </div>
+          
+          {service && (
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground">Price</span>
+              <span className="font-medium">₹{service.price}</span>
+            </div>
+          )}
+
+          <Separator />
+          
+          <div className="flex gap-3 items-center">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <div>
+              <div className="text-sm">Estimated Wait Time</div>
+              <div className="font-medium">{currentWaitTime} minutes</div>
+            </div>
+          </div>
+          
+          <div className="flex gap-3 items-center">
+            <User className="h-4 w-4 text-muted-foreground" />
+            <div>
+              <div className="text-sm">Queue Position</div>
+              <div className="font-medium">{currentQueueLength + 1}</div>
+            </div>
+          </div>
+
+          <div className="flex gap-3 items-center">
+            <MapPin className="h-4 w-4 text-muted-foreground" />
+            <div>
+              <div className="text-sm">Location</div>
+              <div className="font-medium">{business.address}</div>
+            </div>
+          </div>
+
+          <div className="flex gap-3 items-center">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <div>
+              <div className="text-sm">Date</div>
+              <div className="font-medium">{new Date().toLocaleDateString()}</div>
+            </div>
           </div>
 
           <Separator />
-
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <span>Queue: {currentQueueLength}</span>
+          
+          <div className="space-y-3">
+            <div>
+              <div className="text-sm text-muted-foreground">Urgency Level</div>
+              <div className="font-medium">{urgencyLabels[formValues.urgencyLevel]}</div>
             </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span>Wait: ~{currentWaitTime} mins</span>
-            </div>
-          </div>
-
-          <Separator />
-
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Your Information</h4>
-            <div className="grid grid-cols-2 gap-y-2 text-sm">
-              <div className="text-muted-foreground">Urgency:</div>
-              <div>{getUrgencyLabel()}</div>
-
-              <div className="text-muted-foreground">Contact via:</div>
-              <div className="capitalize">{formValues.preferredContactMethod}</div>
-
-              <div className="text-muted-foreground">Contact info:</div>
-              <div>{formValues.contactInfo}</div>
-
-              {formValues.specialRequirements && (
-                <>
-                  <div className="text-muted-foreground col-span-2 mt-1">Special requirements:</div>
-                  <div className="col-span-2 bg-muted/50 p-2 rounded text-xs">
-                    {formValues.specialRequirements}
-                  </div>
-                </>
-              )}
+            
+            {formValues.specialRequirements && (
+              <div>
+                <div className="text-sm text-muted-foreground">Special Requirements</div>
+                <div>{formValues.specialRequirements}</div>
+              </div>
+            )}
+            
+            <div className="flex gap-3 items-center">
+              <Phone className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <div className="text-sm">Contact Preference</div>
+                <div className="font-medium">
+                  {contactMethodLabels[formValues.preferredContactMethod]} ({formValues.contactInfo})
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
-
-      <Button
-        onClick={() => onSubmit(business.name, formValues)}
-        disabled={isSubmitting}
-        className="w-full"
-      >
-        {isSubmitting ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Processing...
-          </>
-        ) : (
-          "Confirm Booking"
-        )}
-      </Button>
     </div>
   );
 }

@@ -1,63 +1,72 @@
 
-import React from "react";
 import { UseFormReturn } from "react-hook-form";
-import {
+import { 
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 
+type QuestionnaireFormValues = {
+  urgencyLevel: "high" | "low" | "medium";
+  specialRequirements: string;
+  preferredContactMethod: "email" | "phone" | "sms";
+  contactInfo: string;
+};
+
 interface BookingQuestionnaireProps {
-  form: UseFormReturn<{
-    urgencyLevel: "low" | "medium" | "high";
-    specialRequirements: string;
-    preferredContactMethod: "phone" | "email" | "sms";
-    contactInfo: string;
-  }>;
+  form: UseFormReturn<QuestionnaireFormValues>;
   onSubmit: () => void;
 }
 
-export function BookingQuestionnaire({
-  form,
-  onSubmit,
-}: BookingQuestionnaireProps) {
+export function BookingQuestionnaire({ form, onSubmit }: BookingQuestionnaireProps) {
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form className="space-y-4 py-4">
         <FormField
           control={form.control}
           name="urgencyLevel"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="space-y-3">
               <FormLabel>Urgency Level</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select urgency level" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="low">Low - Not urgent</SelectItem>
-                  <SelectItem value="medium">Medium - Standard</SelectItem>
-                  <SelectItem value="high">High - Urgent</SelectItem>
-                </SelectContent>
-              </Select>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  className="flex flex-col space-y-1"
+                >
+                  <FormItem className="flex items-center space-x-3 space-y-0">
+                    <FormControl>
+                      <RadioGroupItem value="low" />
+                    </FormControl>
+                    <FormLabel className="font-normal">
+                      Low - Not urgent, just routine
+                    </FormLabel>
+                  </FormItem>
+                  <FormItem className="flex items-center space-x-3 space-y-0">
+                    <FormControl>
+                      <RadioGroupItem value="medium" />
+                    </FormControl>
+                    <FormLabel className="font-normal">
+                      Medium - Somewhat important
+                    </FormLabel>
+                  </FormItem>
+                  <FormItem className="flex items-center space-x-3 space-y-0">
+                    <FormControl>
+                      <RadioGroupItem value="high" />
+                    </FormControl>
+                    <FormLabel className="font-normal">
+                      High - Very important
+                    </FormLabel>
+                  </FormItem>
+                </RadioGroup>
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -71,7 +80,7 @@ export function BookingQuestionnaire({
               <FormLabel>Special Requirements (Optional)</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Enter any special requirements or notes"
+                  placeholder="Any special requirements or notes..."
                   className="resize-none"
                   {...field}
                 />
@@ -85,23 +94,34 @@ export function BookingQuestionnaire({
           control={form.control}
           name="preferredContactMethod"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="space-y-3">
               <FormLabel>Preferred Contact Method</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select contact method" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="phone">Phone</SelectItem>
-                  <SelectItem value="email">Email</SelectItem>
-                  <SelectItem value="sms">SMS</SelectItem>
-                </SelectContent>
-              </Select>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  className="flex space-x-4"
+                >
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <RadioGroupItem value="phone" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Phone</FormLabel>
+                  </FormItem>
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <RadioGroupItem value="sms" />
+                    </FormControl>
+                    <FormLabel className="font-normal">SMS</FormLabel>
+                  </FormItem>
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <RadioGroupItem value="email" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Email</FormLabel>
+                  </FormItem>
+                </RadioGroup>
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -114,8 +134,8 @@ export function BookingQuestionnaire({
             <FormItem>
               <FormLabel>Contact Information</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Phone number or email address"
+                <Input 
+                  placeholder="Phone number or email address..." 
                   {...field}
                 />
               </FormControl>
