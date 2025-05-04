@@ -2,10 +2,9 @@
 import { Business, Department, Service } from "@/lib/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Users, Clock, RefreshCw } from "lucide-react";
+import { Users, Clock } from "lucide-react";
 import { DepartmentSelector } from "@/components/DepartmentSelector";
+import { DateTimePicker } from "./DateTimePicker";
 
 interface ServiceSelectionStepProps {
   business: Business;
@@ -17,6 +16,10 @@ interface ServiceSelectionStepProps {
   currentWaitTime: number;
   onProceed: () => void;
   hasDepartments: boolean;
+  appointmentDate: Date | undefined;
+  setAppointmentDate: (date: Date | undefined) => void;
+  appointmentTime: string | undefined;
+  setAppointmentTime: (time: string | undefined) => void;
 }
 
 export function ServiceSelectionStep({
@@ -28,7 +31,11 @@ export function ServiceSelectionStep({
   currentQueueLength,
   currentWaitTime,
   onProceed,
-  hasDepartments
+  hasDepartments,
+  appointmentDate,
+  setAppointmentDate,
+  appointmentTime,
+  setAppointmentTime
 }: ServiceSelectionStepProps) {
   const service = business.services?.find(s => s.id === selectedService);
 
@@ -100,9 +107,16 @@ export function ServiceSelectionStep({
         </div>
       )}
 
+      <DateTimePicker
+        date={appointmentDate}
+        setDate={setAppointmentDate}
+        time={appointmentTime}
+        setTime={setAppointmentTime}
+      />
+
       <Button 
         onClick={onProceed}
-        disabled={hasDepartments && !selectedDepartment}
+        disabled={(hasDepartments && !selectedDepartment) || !appointmentDate || !appointmentTime}
         className="w-full"
       >
         Continue

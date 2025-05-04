@@ -1,3 +1,4 @@
+
 export interface Business {
   id: string;
   name: string;
@@ -53,6 +54,8 @@ export interface QueueBooking {
   status: "pending" | "active" | "completed" | "cancelled";
   qrCodeUrl?: string; // URL for QR code check-in
   attended?: boolean; // Whether user has checked in
+  appointmentDate?: Date; // Appointment date
+  appointmentTime?: string; // Appointment time
 }
 
 export interface LocationInfo {

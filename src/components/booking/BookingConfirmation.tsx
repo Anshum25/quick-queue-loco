@@ -4,6 +4,7 @@ import { Business } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Clock, MapPin, Calendar, User, Phone } from "lucide-react";
+import { format } from "date-fns";
 
 // Type for booking questionnaire form
 export type QuestionnaireFormValues = {
@@ -22,6 +23,8 @@ interface BookingConfirmationProps {
   form: UseFormReturn<QuestionnaireFormValues>;
   isSubmitting: boolean;
   onSubmit: (businessName: string, formValues: any) => void;
+  appointmentDate?: Date;
+  appointmentTime?: string;
 }
 
 export function BookingConfirmation({
@@ -30,7 +33,9 @@ export function BookingConfirmation({
   service,
   currentWaitTime,
   currentQueueLength,
-  form
+  form,
+  appointmentDate,
+  appointmentTime
 }: BookingConfirmationProps) {
   const formValues = form.getValues();
   const serviceName = service ? service.name : (selectedDepartment ? selectedDepartment.name : "General Queue");
@@ -71,6 +76,26 @@ export function BookingConfirmation({
 
           <Separator />
           
+          {appointmentDate && (
+            <div className="flex gap-3 items-center">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <div className="text-sm">Appointment Date</div>
+                <div className="font-medium">{format(appointmentDate, "PPP")}</div>
+              </div>
+            </div>
+          )}
+          
+          {appointmentTime && (
+            <div className="flex gap-3 items-center">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <div className="text-sm">Appointment Time</div>
+                <div className="font-medium">{appointmentTime}</div>
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-3 items-center">
             <Clock className="h-4 w-4 text-muted-foreground" />
             <div>
@@ -92,14 +117,6 @@ export function BookingConfirmation({
             <div>
               <div className="text-sm">Location</div>
               <div className="font-medium">{business.address}</div>
-            </div>
-          </div>
-
-          <div className="flex gap-3 items-center">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <div>
-              <div className="text-sm">Date</div>
-              <div className="font-medium">{new Date().toLocaleDateString()}</div>
             </div>
           </div>
 

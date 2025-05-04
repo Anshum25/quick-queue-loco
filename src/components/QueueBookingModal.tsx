@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
 import { BookingSteps } from "./booking/BookingSteps";
 import { ServiceSelectionStep } from "./booking/ServiceSelectionStep";
 import { QRCodeDisplay } from "./QRCodeDisplay";
@@ -28,7 +29,17 @@ const bookingQuestionnaireSchema = z.object({
 export function QueueBookingModal({ business, isOpen, onClose, selectedDepartment: initialSelectedDepartment = null }) {
   const [selectedService, setSelectedService] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState(initialSelectedDepartment);
-  const { currentStep, setCurrentStep, isSubmitting, bookingData, handleSubmit } = useQueueBooking();
+  const { 
+    currentStep, 
+    setCurrentStep, 
+    isSubmitting, 
+    bookingData, 
+    handleSubmit,
+    appointmentDate,
+    setAppointmentDate,
+    appointmentTime,
+    setAppointmentTime
+  } = useQueueBooking();
 
   const form = useForm<QuestionnaireFormValues>({
     resolver: zodResolver(bookingQuestionnaireSchema),
@@ -51,7 +62,10 @@ export function QueueBookingModal({ business, isOpen, onClose, selectedDepartmen
   const currentWaitTime = selectedDepartment ? selectedDepartment.waitTime : business.waitTime;
 
   const handleProceedToQuestionnaire = () => {
-    if ((hasDepartments && !selectedDepartment) || (business.services && business.services.length > 0 && !selectedService)) {
+    if ((hasDepartments && !selectedDepartment) || 
+        (business.services && business.services.length > 0 && !selectedService) ||
+        !appointmentDate || 
+        !appointmentTime) {
       return;
     }
     setCurrentStep("questionnaire");
@@ -64,6 +78,8 @@ export function QueueBookingModal({ business, isOpen, onClose, selectedDepartmen
   const handleClose = () => {
     setSelectedDepartment(initialSelectedDepartment);
     setSelectedService("");
+    setAppointmentDate(undefined);
+    setAppointmentTime(undefined);
     setCurrentStep("selection");
     form.reset();
     onClose();
@@ -94,6 +110,10 @@ export function QueueBookingModal({ business, isOpen, onClose, selectedDepartmen
             currentWaitTime={currentWaitTime}
             onProceed={handleProceedToQuestionnaire}
             hasDepartments={hasDepartments}
+            appointmentDate={appointmentDate}
+            setAppointmentDate={setAppointmentDate}
+            appointmentTime={appointmentTime}
+            setAppointmentTime={setAppointmentTime}
           />
         )}
 
@@ -114,6 +134,8 @@ export function QueueBookingModal({ business, isOpen, onClose, selectedDepartmen
             isSubmitting={isSubmitting}
             onBack={() => setCurrentStep("questionnaire")}
             onSubmit={handleSubmit}
+            appointmentDate={appointmentDate}
+            appointmentTime={appointmentTime}
           />
         )}
 
@@ -122,6 +144,11 @@ export function QueueBookingModal({ business, isOpen, onClose, selectedDepartmen
             <h2 className="text-xl font-semibold text-center">Your Spot is Confirmed!</h2>
             <div className="text-center mb-4">
               <p className="text-sm text-muted-foreground">Join the queue remotely for {business.name}</p>
+              {bookingData.appointmentDate && bookingData.appointmentTime && (
+                <p className="text-sm font-medium mt-2">
+                  Appointment: {format(bookingData.appointmentDate, "PPP")} at {bookingData.appointmentTime}
+                </p>
+              )}
             </div>
             
             <div className="bg-muted p-6 rounded-lg w-full">
@@ -159,7 +186,7 @@ export function QueueBookingModal({ business, isOpen, onClose, selectedDepartmen
               </Button>
               <Button
                 onClick={handleProceedToQuestionnaire}
-                disabled={isSubmitting || (hasDepartments && !selectedDepartment)}
+                disabled={isSubmitting || (hasDepartments && !selectedDepartment) || !appointmentDate || !appointmentTime}
                 className="w-full"
               >
                 Continue

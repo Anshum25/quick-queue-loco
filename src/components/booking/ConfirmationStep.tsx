@@ -14,6 +14,8 @@ interface ConfirmationStepProps {
   isSubmitting: boolean;
   onBack: () => void;
   onSubmit: (businessName: string, formValues: QuestionnaireFormValues) => void;
+  appointmentDate?: Date;
+  appointmentTime?: string;
 }
 
 export function ConfirmationStep({
@@ -24,7 +26,9 @@ export function ConfirmationStep({
   form,
   isSubmitting,
   onBack,
-  onSubmit
+  onSubmit,
+  appointmentDate,
+  appointmentTime
 }: ConfirmationStepProps) {
   const handleSubmit = () => {
     onSubmit(business.name, form.getValues());
@@ -41,6 +45,8 @@ export function ConfirmationStep({
         form={form}
         isSubmitting={isSubmitting}
         onSubmit={onSubmit}
+        appointmentDate={appointmentDate}
+        appointmentTime={appointmentTime}
       />
       
       <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-4">

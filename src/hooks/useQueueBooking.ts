@@ -10,12 +10,16 @@ export interface BookingData {
   qrCodeUrl: string;
   position: number;
   estimatedTime: number;
+  appointmentDate?: Date;
+  appointmentTime?: string;
 }
 
 export function useQueueBooking() {
   const [currentStep, setCurrentStep] = useState<BookingStep>("selection");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingData, setBookingData] = useState<BookingData | null>(null);
+  const [appointmentDate, setAppointmentDate] = useState<Date | undefined>(undefined);
+  const [appointmentTime, setAppointmentTime] = useState<string | undefined>(undefined);
   const { toast } = useToast();
 
   const generateBookingId = (): string => {
@@ -40,7 +44,9 @@ export function useQueueBooking() {
         id: bookingId,
         qrCodeUrl: `https://api.quickqueueapp.com/qr/${bookingId}`,
         position: 1,
-        estimatedTime: 30
+        estimatedTime: 30,
+        appointmentDate: appointmentDate,
+        appointmentTime: appointmentTime
       });
       
       setCurrentStep("success");
@@ -59,6 +65,10 @@ export function useQueueBooking() {
     isSubmitting,
     setIsSubmitting,
     bookingData,
-    handleSubmit
+    handleSubmit,
+    appointmentDate,
+    setAppointmentDate,
+    appointmentTime,
+    setAppointmentTime
   };
 }
