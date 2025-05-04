@@ -35,7 +35,7 @@ export function ConfirmationStep({
       <BookingConfirmation
         business={business}
         selectedDepartment={selectedDepartment}
-        service={business.services?.find(s => s.id === business.selectedService)}
+        service={business.services?.find(s => s.id === business.services?.[0]?.id)}
         currentWaitTime={currentWaitTime}
         currentQueueLength={currentQueueLength}
         form={form}

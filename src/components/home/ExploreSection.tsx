@@ -4,7 +4,6 @@ import { CategoryFilter } from "@/components/CategoryFilter";
 import { BusinessList } from "@/components/BusinessList";
 import { PremiumFeatures } from "./PremiumFeatures";
 import { SubscriptionPlans } from "./SubscriptionPlans";
-import { AdBanner } from "./AdBanner";
 
 interface ExploreSectionProps {
   selectedCategory: BusinessCategory | null;
@@ -30,8 +29,6 @@ export function ExploreSection({
           selectedCategory={selectedCategory}
           onCategoryChange={onCategoryChange}
         />
-        
-        <AdBanner />
         
         <BusinessList 
           businesses={businesses}

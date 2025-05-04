@@ -71,7 +71,7 @@ export function QueueBookingModal({ business, isOpen, onClose, selectedDepartmen
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Book Queue Spot</DialogTitle>
           <DialogDescription>
@@ -79,7 +79,9 @@ export function QueueBookingModal({ business, isOpen, onClose, selectedDepartmen
           </DialogDescription>
         </DialogHeader>
         
-        <BookingSteps currentStep={currentStep} />
+        {currentStep !== "success" && (
+          <BookingSteps currentStep={currentStep} />
+        )}
         
         {currentStep === "selection" && (
           <ServiceSelectionStep
@@ -117,6 +119,30 @@ export function QueueBookingModal({ business, isOpen, onClose, selectedDepartmen
 
         {currentStep === "success" && bookingData && (
           <div className="space-y-4 py-4 flex flex-col items-center">
+            <h2 className="text-xl font-semibold text-center">Your Spot is Confirmed!</h2>
+            <div className="text-center mb-4">
+              <p className="text-sm text-muted-foreground">Join the queue remotely for {business.name}</p>
+            </div>
+            
+            <div className="bg-muted p-6 rounded-lg w-full">
+              <div className="flex justify-between mb-4">
+                <div>
+                  <h3 className="text-sm font-medium">Current Queue</h3>
+                  <p className="text-lg font-semibold flex items-center">
+                    <span className="inline-block mr-2">👥</span> 
+                    {currentQueueLength} people
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium">Estimated Wait</h3>
+                  <p className="text-lg font-semibold flex items-center">
+                    <span className="inline-block mr-2">⏱️</span>
+                    {currentWaitTime} mins
+                  </p>
+                </div>
+              </div>
+            </div>
+            
             <QRCodeDisplay
               qrData={bookingData.qrCodeUrl}
               bookingId={bookingData.id}

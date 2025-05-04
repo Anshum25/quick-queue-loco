@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Business, BusinessCategory } from "@/lib/types";
 import { BusinessCard } from "@/components/BusinessCard";
 import { SearchFilters, FilterOptions, SortOption } from "@/components/SearchFilters";
+import { AdBanner } from "./home/AdBanner";
 
 interface BusinessListProps {
   businesses: Business[];
@@ -69,6 +70,8 @@ export function BusinessList({ businesses, selectedCategory }: BusinessListProps
         setFilterOptions={setFilterOptions}
         onResetFilters={handleResetFilters}
       />
+
+      <AdBanner />
 
       {sortedBusinesses.length === 0 ? (
         <div className="text-center py-12">
