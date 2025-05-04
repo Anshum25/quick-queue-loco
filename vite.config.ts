@@ -11,17 +11,21 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   plugins: [
-    react(),
+    react({
+      jsxRuntime: 'automatic',
+    }),
     mode === 'development' &&
     componentTagger(),
   ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "react/jsx-runtime": path.resolve(__dirname, "node_modules/react/jsx-runtime"),
+      "react": path.resolve(__dirname, "node_modules/react"),
     },
   },
   optimizeDeps: {
-    include: ['mapbox-gl']
+    include: ['mapbox-gl', 'react', 'react-dom']
   },
   build: {
     commonjsOptions: {
