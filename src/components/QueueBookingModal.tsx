@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { QRCodeDisplay } from "./QRCodeDisplay";
 import { useQueueBooking } from "@/hooks/useQueueBooking";
 import { BookingQuestionnaire } from "./booking/BookingQuestionnaire";
 import { BookingConfirmation, QuestionnaireFormValues } from "./booking/BookingConfirmation";
+import { ConfirmationStep } from "./booking/ConfirmationStep";
 
 // Define the schema for the booking questionnaire
 const bookingQuestionnaireSchema = z.object({
@@ -22,9 +24,6 @@ const bookingQuestionnaireSchema = z.object({
   }),
   contactInfo: z.string().min(3, "Contact information is required")
 });
-
-// Define the TypeScript type from the schema
-type QuestionnaireFormValues = z.infer<typeof bookingQuestionnaireSchema>;
 
 export function QueueBookingModal({ business, isOpen, onClose, selectedDepartment: initialSelectedDepartment = null }) {
   const [selectedService, setSelectedService] = useState("");
@@ -104,14 +103,14 @@ export function QueueBookingModal({ business, isOpen, onClose, selectedDepartmen
         )}
 
         {currentStep === "confirmation" && (
-          <BookingConfirmation
+          <ConfirmationStep
             business={business}
             selectedDepartment={selectedDepartment}
-            service={business.services?.find(s => s.id === selectedService)}
             currentWaitTime={currentWaitTime}
             currentQueueLength={currentQueueLength}
             form={form}
             isSubmitting={isSubmitting}
+            onBack={() => setCurrentStep("questionnaire")}
             onSubmit={handleSubmit}
           />
         )}
@@ -160,23 +159,7 @@ export function QueueBookingModal({ business, isOpen, onClose, selectedDepartmen
             </>
           )}
 
-          {currentStep === "confirmation" && (
-            <>
-              <Button
-                variant="outline"
-                onClick={() => setCurrentStep("questionnaire")}
-              >
-                Back
-              </Button>
-              <Button
-                onClick={() => handleSubmit(business.name, form.getValues())}
-                disabled={isSubmitting}
-                className="w-full"
-              >
-                {isSubmitting ? "Processing..." : "Confirm Booking"}
-              </Button>
-            </>
-          )}
+          {/* No footer buttons here as they are part of the ConfirmationStep component now */}
 
           {currentStep === "success" && (
             <Button
