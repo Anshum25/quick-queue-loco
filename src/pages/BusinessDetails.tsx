@@ -12,6 +12,7 @@ import { DepartmentSelector } from "@/components/DepartmentSelector";
 import { getDepartmentsForHospital } from "@/lib/data-departments";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Clock, Users, Star, ArrowLeft } from "lucide-react";
+import Map from "@/components/Map";
 
 const BusinessDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -52,6 +53,13 @@ const BusinessDetails = () => {
     if (business.waitTime <= 15) return "text-green-500";
     if (business.waitTime <= 30) return "text-amber-500";
     return "text-red-500";
+  };
+
+  // Sample coordinates based on the business address
+  // In a real app, you would use geocoding to get these from the address
+  const businessCoordinates = {
+    latitude: 23.0225 + (Math.random() * 0.01 - 0.005),
+    longitude: 72.5714 + (Math.random() * 0.01 - 0.005)
   };
 
   return (
@@ -116,6 +124,18 @@ const BusinessDetails = () => {
                         : `${business.name} is a top-rated ${business.category} providing exceptional service to customers in ${selectedLocation?.city}.`
                       }
                     </p>
+                  </div>
+
+                  {/* Map Section */}
+                  <div>
+                    <h2 className="text-xl font-semibold mb-2">Location</h2>
+                    <Map 
+                      latitude={businessCoordinates.latitude} 
+                      longitude={businessCoordinates.longitude}
+                      address={business.address}
+                      businessName={business.name}
+                      className="h-[300px] mb-4"
+                    />
                   </div>
 
                   {business.services && business.services.length > 0 && (

@@ -1,4 +1,3 @@
-
 export interface Business {
   id: string;
   name: string;
@@ -13,6 +12,10 @@ export interface Business {
   departments?: Department[];
   isPremium?: boolean; // Premium listing status
   premiumBadge?: string; // Badge type for premium businesses
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
 }
 
 export type BusinessCategory = 
