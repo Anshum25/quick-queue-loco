@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { Clock, MapPin, Calendar, User, Phone } from "lucide-react";
 
 // Type for booking questionnaire form
-type QuestionnaireFormValues = {
+export type QuestionnaireFormValues = {
   urgencyLevel: "high" | "low" | "medium";
   specialRequirements: string;
   preferredContactMethod: "email" | "phone" | "sms";

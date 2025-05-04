@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,7 @@ import { ServiceSelectionStep } from "./booking/ServiceSelectionStep";
 import { QRCodeDisplay } from "./QRCodeDisplay";
 import { useQueueBooking } from "@/hooks/useQueueBooking";
 import { BookingQuestionnaire } from "./booking/BookingQuestionnaire";
-import { BookingConfirmation } from "./booking/BookingConfirmation";
+import { BookingConfirmation, QuestionnaireFormValues } from "./booking/BookingConfirmation";
 
 // Define the schema for the booking questionnaire
 const bookingQuestionnaireSchema = z.object({
