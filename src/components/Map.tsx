@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { MapPin, Navigation } from "lucide-react";
+import { Navigation } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 
 interface MapProps {
@@ -16,14 +16,16 @@ const Map = ({ longitude = 72.5714, latitude = 23.0225, address, businessName, c
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<any | null>(null);
   const [apiLoaded, setApiLoaded] = useState<boolean>(false);
-  const [googleApiKey, setGoogleApiKey] = useState<string>("");
-  const [showKeyInput, setShowKeyInput] = useState<boolean>(true);
+  const [googleApiKey, setGoogleApiKey] = useState<string>("AIzaSyD_uZnHY1qcTVpXNOYIyzavhbb9IbiSbEw"); // Default API key from your example
+  const [showKeyInput, setShowKeyInput] = useState<boolean>(false); // Changed to false to automatically load the map
 
   useEffect(() => {
-    if (!googleApiKey || !mapRef.current || apiLoaded) return;
-
+    if (!mapRef.current) return;
+    
+    // Load Google Maps API
     const loadGoogleMapsApi = () => {
       if (window.google && window.google.maps) {
+        setApiLoaded(true);
         initializeMap();
         return;
       }
@@ -42,47 +44,57 @@ const Map = ({ longitude = 72.5714, latitude = 23.0225, address, businessName, c
           description: "Please check your API key and try again.",
           variant: "destructive"
         });
+        setShowKeyInput(true);
       };
       document.head.appendChild(script);
     };
 
     loadGoogleMapsApi();
-  }, [googleApiKey, apiLoaded, latitude, longitude]);
+  }, [googleApiKey, latitude, longitude]);
 
   const initializeMap = () => {
     if (!mapRef.current || !window.google || !window.google.maps) return;
 
-    const mapOptions = {
-      center: { lat: latitude, lng: longitude },
-      zoom: 14,
-      mapTypeControl: false,
-      fullscreenControl: false,
-      streetViewControl: false
-    };
+    try {
+      const mapOptions = {
+        center: { lat: latitude, lng: longitude },
+        zoom: 14,
+        mapTypeControl: false,
+        fullscreenControl: false,
+        streetViewControl: false
+      };
 
-    const newMap = new window.google.maps.Map(mapRef.current, mapOptions);
-    setMap(newMap);
+      const newMap = new window.google.maps.Map(mapRef.current, mapOptions);
+      setMap(newMap);
 
-    // Add marker for business location
-    const marker = new window.google.maps.Marker({
-      position: { lat: latitude, lng: longitude },
-      map: newMap,
-      title: businessName || 'Location',
-      animation: window.google.maps.Animation.DROP
-    });
-
-    // Add info window with business details
-    if (businessName || address) {
-      const infoWindow = new window.google.maps.InfoWindow({
-        content: `<div><strong>${businessName || 'Location'}</strong><p>${address || ''}</p></div>`
+      // Add marker for business location
+      const marker = new window.google.maps.Marker({
+        position: { lat: latitude, lng: longitude },
+        map: newMap,
+        title: businessName || 'Location',
+        animation: window.google.maps.Animation.DROP
       });
 
-      marker.addListener('click', () => {
+      // Add info window with business details
+      if (businessName || address) {
+        const infoWindow = new window.google.maps.InfoWindow({
+          content: `<div><strong>${businessName || 'Location'}</strong><p>${address || ''}</p></div>`
+        });
+
+        marker.addListener('click', () => {
+          infoWindow.open(newMap, marker);
+        });
+        
+        // Open info window by default
         infoWindow.open(newMap, marker);
+      }
+    } catch (error) {
+      console.error("Error initializing map:", error);
+      toast({
+        title: "Error initializing map",
+        description: "There was a problem setting up the map. Please try again.",
+        variant: "destructive"
       });
-      
-      // Open info window by default
-      infoWindow.open(newMap, marker);
     }
   };
 
@@ -98,7 +110,7 @@ const Map = ({ longitude = 72.5714, latitude = 23.0225, address, businessName, c
     
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const { longitude: userLong, latitude: userLat } = position.coords;
+        const { latitude: userLat, longitude: userLong } = position.coords;
         const userLocation = new window.google.maps.LatLng(userLat, userLong);
         
         map.panTo(userLocation);
@@ -167,18 +179,24 @@ const Map = ({ longitude = 72.5714, latitude = 23.0225, address, businessName, c
 
   return (
     <div className={`relative ${className || 'h-[300px]'}`}>
-      <div ref={mapRef} className="absolute inset-0 rounded-md" />
-      <div className="absolute top-2 left-2 z-10">
-        <Button 
-          variant="secondary" 
-          size="sm"
-          onClick={handleGetCurrentLocation}
-          className="flex items-center gap-1"
-        >
-          <Navigation className="h-4 w-4" />
-          <span>Find Me</span>
-        </Button>
-      </div>
+      <div 
+        ref={mapRef} 
+        className="absolute inset-0 rounded-md"
+        style={{width: '100%', height: '100%'}} // Explicit width and height
+      />
+      {apiLoaded && (
+        <div className="absolute top-2 left-2 z-10">
+          <Button 
+            variant="secondary" 
+            size="sm"
+            onClick={handleGetCurrentLocation}
+            className="flex items-center gap-1"
+          >
+            <Navigation className="h-4 w-4" />
+            <span>Find Me</span>
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
