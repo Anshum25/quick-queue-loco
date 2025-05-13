@@ -22,12 +22,9 @@ export default defineConfig(({ mode }) => ({
       "react": path.resolve(__dirname, "node_modules/react"),
     },
   },
-  optimizeDeps: {
-    include: ['mapbox-gl', 'react', 'react-dom']
-  },
   build: {
     commonjsOptions: {
-      include: ['node_modules/mapbox-gl/**']
+      include: []
     }
   }
 }));
