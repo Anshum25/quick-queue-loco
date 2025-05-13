@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { MapPin, Navigation } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 interface MapProps {
   longitude?: number;
@@ -13,7 +14,7 @@ interface MapProps {
 
 const Map = ({ longitude = 72.5714, latitude = 23.0225, address, businessName, className }: MapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [map, setMap] = useState<any | null>(null);
   const [apiLoaded, setApiLoaded] = useState<boolean>(false);
   const [googleApiKey, setGoogleApiKey] = useState<string>("");
   const [showKeyInput, setShowKeyInput] = useState<boolean>(true);
@@ -35,6 +36,13 @@ const Map = ({ longitude = 72.5714, latitude = 23.0225, address, businessName, c
         setApiLoaded(true);
         initializeMap();
       };
+      script.onerror = () => {
+        toast({
+          title: "Error loading Google Maps",
+          description: "Please check your API key and try again.",
+          variant: "destructive"
+        });
+      };
       document.head.appendChild(script);
     };
 
@@ -42,9 +50,9 @@ const Map = ({ longitude = 72.5714, latitude = 23.0225, address, businessName, c
   }, [googleApiKey, apiLoaded, latitude, longitude]);
 
   const initializeMap = () => {
-    if (!mapRef.current || !window.google) return;
+    if (!mapRef.current || !window.google || !window.google.maps) return;
 
-    const mapOptions: google.maps.MapOptions = {
+    const mapOptions = {
       center: { lat: latitude, lng: longitude },
       zoom: 14,
       mapTypeControl: false,
@@ -86,22 +94,22 @@ const Map = ({ longitude = 72.5714, latitude = 23.0225, address, businessName, c
   };
 
   const handleGetCurrentLocation = () => {
-    if (!map || !window.google) return;
+    if (!map || !window.google || !window.google.maps) return;
     
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { longitude: userLong, latitude: userLat } = position.coords;
-        const userLocation = new google.maps.LatLng(userLat, userLong);
+        const userLocation = new window.google.maps.LatLng(userLat, userLong);
         
         map.panTo(userLocation);
         
         // Add a user location marker
-        const userMarker = new google.maps.Marker({
+        const userMarker = new window.google.maps.Marker({
           position: userLocation,
           map: map,
           title: 'You are here',
           icon: {
-            path: google.maps.SymbolPath.CIRCLE,
+            path: window.google.maps.SymbolPath.CIRCLE,
             fillColor: '#3b82f6',
             fillOpacity: 1,
             strokeWeight: 0,
@@ -110,7 +118,7 @@ const Map = ({ longitude = 72.5714, latitude = 23.0225, address, businessName, c
         });
 
         // Add info window for user location
-        const infoWindow = new google.maps.InfoWindow({
+        const infoWindow = new window.google.maps.InfoWindow({
           content: '<strong>You are here</strong>'
         });
 
@@ -124,6 +132,11 @@ const Map = ({ longitude = 72.5714, latitude = 23.0225, address, businessName, c
       },
       (err) => {
         console.error("Error getting location: ", err);
+        toast({
+          title: "Location error",
+          description: "Could not access your location. Please check your browser settings.",
+          variant: "destructive"
+        });
       }
     );
   };
